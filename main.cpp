@@ -70,8 +70,8 @@ t_all *initial( void )
 	all->serverPassword = "1111";
 
 	all->commands = (int(**)(t_all*, t_input*))malloc(sizeof(int(*)(t_all*, t_input*)) * 2);
-	all->commands[0] = pass;
-	all->commands[1] = nick;
+	all->commands[PASS] = pass;
+	all->commands[NICK] = nick;
 
 	return (all);
 }
