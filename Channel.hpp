@@ -1,17 +1,21 @@
 #pragma once
 
-class User;
-
-#include <list>
+#include <vector>
+#include <string>
 #include "User.hpp"
 
 class Channel
 {
-	list<const User *>	_users;
-	list<const User *>	_operators;
-public:
-	Channel( void );
+	private:
+		std::string					name;
+		std::vector<const User *>	users;
+		std::vector<const User *>	operators;
 
-	void addUser(const User &user);
-	void dellUser(const User &user);
+
+		Channel( void );
+	public:
+		Channel(std::string channel_name);
+
+		void addUser(const User &user);
+		void dellUser(const User &user);
 };

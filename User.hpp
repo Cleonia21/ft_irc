@@ -1,27 +1,28 @@
 #pragma once
 
-#include "irc.hpp"
+#include <string>
+#include "Input.hpp"
 
 class User
 {
 private:
-	string	_name;
-	string	_nick;
-	string	_hostName;
-	string	_realName;
-	string	_password;
+	std::string	_name;
+	std::string	_nick;
+	std::string	_hostName;
+	std::string	_realName;
+	std::string	_password;
 
 public:
 	User( void );
 
-	void setName( string );
-	void setNick( string );
-	void setHostName( string );
-	void setRealName( string );
-	string getName( void );
-	string getNick( void );
-	string getHostName( void );
-	string getRealName( void );
+	void setName( std::string );
+	void setNick( std::string );
+	void setHostName( std::string );
+	void setRealName( std::string );
+	std::string getName( void ) const;
+	std::string getNick( void ) const;
+	std::string getHostName( void ) const;
+	std::string getRealName( void ) const;
 	// void set( void );
 	// void get( void );
 	// void set( void );

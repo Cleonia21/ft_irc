@@ -1,14 +1,20 @@
-NAME	=	irc.out
+NAME	=	ircserv
 
-HPP		=	irc.hpp Channel.hpp User.hpp
+INCLUDE =	include/
 CPP		=	c++ #-Wall -Wextra -Werror -std=c++98
-SRCS	=	execution.cpp User.cpp parser.cpp main.cpp colorCout.cpp
+SRCS	=	Server.cpp \
+			Server_commands.cpp \
+			User.cpp \
+			Channel.cpp \
+			Input.cpp \
+			main.cpp \
+			colorCout.cpp
 OBJ		=	$(SRCS:.cpp=.o)
 
 all		:	$(NAME)
 
-%.o		:	%.cpp $(HPP)
-			$(CPP) -c $< -o $@
+%.o		:	%.cpp
+			$(CPP) -c $< -o $@ #-I $(INCLUDE) enable later
 
 $(NAME)	:	$(OBJ) MAKEFILE
 			$(CPP) $(OBJ) -o $(NAME)

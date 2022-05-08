@@ -8,15 +8,15 @@
 
 User::User( void )
 {
-	cout << "Default constructor from User colled" << endl;
+
 }
 
-string User::getName( void ) { return (_name); }
-string User::getNick( void ) { return (_nick); }
-string User::getHostName( void ) { return (_hostName); }
-string User::getRealName( void ) { return (_realName); }
+std::string User::getName( void ) const { return (_name); }
+std::string User::getNick( void ) const { return (_nick); }
+std::string User::getHostName( void ) const { return (_hostName); }
+std::string User::getRealName( void ) const { return (_realName); }
 
-void User::setName( string name ) { _name = name; }
-void User::setNick( string nick ) { _nick = nick; }
-void User::setHostName( string hostName ) { _hostName = hostName; }
-void User::setRealName( string realName) { _realName = realName; }
+void User::setName( std::string name ) { _name = name; }
+void User::setNick( std::string nick ) { _nick = nick; }
+void User::setHostName( std::string hostName ) { _hostName = hostName; }
+void User::setRealName( std::string realName) { _realName = realName; }

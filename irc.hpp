@@ -1,29 +1,8 @@
 #ifndef IRC_H
 #define IRC_H
 
-#include <iostream>
 #include <string>
-#include <vector>
-#include <list>
-
-using namespace std;
-
-class Channel;
-class User;
-
-#include "User.hpp"
-#include "Channel.hpp"
-
-enum e_commands
-{
-	PASS,
-	NICK,
-	USER,
-	PRIVMSG,
-	NOTICE,
-	JOIN,
-	KICK
-};
+#include <iostream>
 
 enum e_search
 {
@@ -39,34 +18,9 @@ enum e_errors
 	ERR_ALREADYREGISTRED = 462		//":Unauthorized command (already registered)"
 };
 
-enum retvals_commands
-{
-	RPL_EMPTY = 0,
-	RPL_WELCOME = 001				//"Welcome to the Internet Relay Network\n<nick>!<user>@<host>"
-};
-
-typedef struct s_input
-{
-	int command;
-	string prefix;
-	string param;
-	string hostName;
-}   t_input;
-
-typedef struct s_all
-{
-	vector<User*>	users;
-	vector<Channel*>	channels;
-	string			serverPassword;
-	int (**commands) (struct s_all *, t_input *);
-}   t_all;
-
-t_input *parser(string input);
-void execution(t_all *all, string input);
-
-void redCout(string text);
-void yellowCout(string text);
-void greenCout(string text);
+void redCout(std::string text);
+void yellowCout(std::string text);
+void greenCout(std::string text);
 
 // template<typename T>
 // typename T::iterator easyfind(T &elem, int znch)
