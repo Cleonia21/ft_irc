@@ -20,3 +20,13 @@ void User::setName( std::string name ) { _name = name; }
 void User::setNick( std::string nick ) { _nick = nick; }
 void User::setHostName( std::string hostName ) { _hostName = hostName; }
 void User::setRealName( std::string realName) { _realName = realName; }
+
+std::ostream	&operator<<( std::ostream &ostr, User &instance )
+{
+	ostr	<< "\e[0;32m" << "User:" << std::endl
+			<< "Name:      " << instance.getName() << std::endl
+			<< "Nick:      " << instance.getNick() << std::endl
+			<< "Host name: " << instance.getHostName() << std::endl
+			<< "Real name: " << instance.getRealName() << std::endl << "\e[0m";
+	return (ostr);
+}

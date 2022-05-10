@@ -15,13 +15,13 @@ class Server
 	private:
 		typedef int (Server::*Command)(User &, Input &);
 
-		int					port;
-		std::string			password;
-		std::vector<User *>	users;
-		std::vector<Channel *>	channels;
-		std::map<std::string, Command>	commands;
-		std::map<std::string, Command>::iterator iter;
-		std::string			motd;
+		int											_port;
+		std::string									_password;
+		std::vector<User *>							_users;
+		std::vector<Channel *>						_channels;
+		std::map<std::string, Command>				_commands;
+		std::map<std::string, Command>::iterator 	_iter;
+		std::string									_motd;
 
 		//commands
 		int pass(User &user, Input &input);
@@ -32,12 +32,10 @@ class Server
 		Server(void);
 		Server(Server const &src);
 		Server & operator=(Server const & src);
+		User *searchUser(int key, std::string znch);
 	public:
 		Server(int server_port, std::string server_password);
 		~Server(void);
 
-		User *searchUser(int key, std::string znch, std::vector<User*> users);
 		void execution(std::string input);
 };
-
-

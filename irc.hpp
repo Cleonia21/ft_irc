@@ -22,16 +22,4 @@ void redCout(std::string text);
 void yellowCout(std::string text);
 void greenCout(std::string text);
 
-// template<typename T>
-// typename T::iterator easyfind(T &elem, int znch)
-// {
-//     typename T::iterator result;
-
-//     result = find(elem.begin(), elem.end(), znch);
-//     if (result == elem.end())
-//         throw std::logic_error("easyfind: znch not fond");
-//     return (result);
-// }
-
-
 #endif

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include <iomanip>
 #include "Input.hpp"
 
 class User
@@ -28,3 +29,5 @@ public:
 	// void set( void );
 	// void get( void );
 };
+
+std::ostream	&operator<<( std::ostream &ostr, User &instance );

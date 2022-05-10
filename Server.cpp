@@ -1,35 +1,32 @@
 #include "Server.hpp"
 
 Server::Server(int server_port, std::string server_password) :
-	port(server_port), password(server_password)
+	_port(server_port), _password(server_password)
 {
-	this->commands["PASS"] = &Server::pass;
-	this->commands["NICK"] = &Server::nick;
+	_commands["PASS"] = &Server::pass;
+	_commands["NICK"] = &Server::nick;
 
-	this->motd = "Welcome to IRCserv!";
+	_motd = "Welcome to IRCserv!";
 }
 
 Server::~Server(void)
 {
-	std::cout << "Server Destructor called" << std::endl;
+	// std::cout << "Server Destructor called" << std::endl;
 }
 
 void Server::execution(std::string input)
 {
-	Input new_input(input);
+	Input newInput(input);
 	User user;
 
-	this->iter = commands.find(input); //iter - итератор контейнера с командами, ищем команду через find
-	if (iter == commands.end())			//проверяем наличие команды
-	{
-		//error, command not found
-	}
-	(this->*iter->second)(user, new_input); //запускаем команду
-	//(this->*commands[new_input.getCommand()])(user, new_input); //скорее всего лучше использовать верхний вариант
-	//так как можно обработать ситуацию в случае с неправильно набранной командой
+	_iter = _commands.find(newInput.getCommand());
+	if (_iter == _commands.end()) //проверяем наличие команды
+		std::cout << "error, command not found(execution)" << std::endl;
+	else
+		(this->*_iter->second)(user, newInput); //запускаем команду
 }
 
-User *Server::searchUser(int key, std::string znch, std::vector<User *> users)
+User *Server::searchUser(int key, std::string znch)
 {
 	std::string (User::*geter)( void ) const;
 	if (key == SRCH_NICK)
@@ -41,13 +38,13 @@ User *Server::searchUser(int key, std::string znch, std::vector<User *> users)
 	else
 	{
 		redCout("Invalid key in searchUser");
-		return (NULL);//NULL
+		return (NULL);
 	}
-	for (int i = 0; i != users.size(); i++)
+	for (int i = 0; i != _users.size(); i++)
 	{
-		if ((users[i]->*geter)() == znch)
-			return (users[i]);
+		if ((_users[i]->*geter)() == znch)
+			return (_users[i]);
 	}
-	return (NULL);//NULL
+	return (NULL);
 }
 

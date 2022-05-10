@@ -2,22 +2,27 @@
 
 #include <string>
 #include <vector>
+#include <iomanip>
 
 class Input
 {
 	private:
-		std::string					prefix;
-		std::string					command;
-		std::vector<std::string>	params;
+		std::string					_prefix;
+		std::string					_command;
+		std::vector<std::string>	_params;
 
-		Input(void);
+		std::string trimSpase(std::string str);
+		void trimSubStr(std::string *out, std::string *in);
+	public:
+		Input(std::string userInput);
+		~Input( void );
+
 		Input(Input const &src);
 		Input & operator=(Input const & src);
-	public:
-		Input(std::string User_input); //Here goes parser
-		~Input(void);
 
 		std::string getPrefix(void) const;
 		std::string getCommand(void) const;
 		std::vector<std::string> getParams(void) const;
 };
+
+std::ostream	&operator<<( std::ostream &ostr, Input &instance );
