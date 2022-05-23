@@ -21,7 +21,7 @@ int Server::nick(User &user, Input &input)
 	// 			<< input << std::endl;
 	if (input.getParams()[0] == "") //если не указан ник
 		return (ERR_NEEDMOREPARAMS);
-	User *temp_user = searchUser(SRCH_HOSTNAME, user.getHostName());
+	User *tempUser = searchUser(SRCH_HOSTNAME, user.getHostName());
 	return (0);
 }
 
