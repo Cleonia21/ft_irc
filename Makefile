@@ -1,30 +1,33 @@
-NAME	=	ircserv
-
-INCLUDE =	include/
-CPP		=	c++ #-Wall -Wextra -Werror -std=c++98
-SRCS	=	Server.cpp \
+NAME = ircserv
+INCLUDE = include/
+CPP = c++ #-Wall -Wextra -Werror -std=c++98
+SRCS =		Server.cpp \
 			Server_commands.cpp \
 			User.cpp \
 			Channel.cpp \
 			Input.cpp \
 			main.cpp \
 			colorCout.cpp
-OBJ		=	$(SRCS:.cpp=.o)
+OBJ_DIR = objs
+OBJS = $(addprefix $(OBJ_DIR)/, $(SRCS:.cpp=.o))
 
-all		:	$(NAME)
+all: $(NAME)
 
-%.o		:	%.cpp
-			$(CPP) -c $< -o $@ #-I $(INCLUDE) enable later
+$(OBJ_DIR):
+		mkdir -p $@
 
-$(NAME)	:	$(OBJ) MAKEFILE
-			$(CPP) $(OBJ) -o $(NAME)
+$(OBJ_DIR)/%.o: %.cpp
+		$(CPP) -c $< -o $@ #-I $(INCLUDE) enable later
 
-clean	:
-			rm -f $(OBJ)
+$(NAME): $(OBJ_DIR) $(OBJS)
+		$(CPP) $(OBJS) -o $(NAME)
 
-fclean	:	clean
-			rm -f $(NAME)
+clean:
+		rm -rf $(OBJ_DIR)
 
-re		:	fclean all
+fclean: clean
+		rm -f $(NAME)
 
-.PHONY	:	all clean fclean re
+re: fclean all
+
+.PHONY: all clean fclean re
