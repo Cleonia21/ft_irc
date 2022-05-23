@@ -3,10 +3,10 @@
 
 #include <string>
 #include <iostream>
+#include <sstream>
 
 enum e_search
 {
-	SRCH_NAME,
 	SRCH_NICK,
 	SRCH_HOSTNAME,
 	SRCH_REALNAME
