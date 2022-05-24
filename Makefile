@@ -7,7 +7,8 @@ SRCS =		Server.cpp \
 			Channel.cpp \
 			Input.cpp \
 			main.cpp \
-			colorCout.cpp
+			colorCout.cpp \
+			sendServerReply.cpp
 OBJ_DIR = objs
 OBJS = $(addprefix $(OBJ_DIR)/, $(SRCS:.cpp=.o))
 

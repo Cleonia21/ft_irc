@@ -18,6 +18,7 @@
 #include "Input.hpp"
 #include "irc.hpp"
 
+#define SERVER_DISCONNECT -1
 
 class Server
 {
@@ -37,6 +38,9 @@ class Server
 		std::vector<struct pollfd>					pollfds;
 
 		//utility functions
+		bool isNickValid(std::string &nick) const;
+		bool containsNickname(const std::string &nick) const;
+		int checkForRegistration(User &user);
 
 		//socketManagement
 		void socketGetaddrinfo(void);
@@ -49,6 +53,7 @@ class Server
 		//commands
 		int pass(User &user, Input &input);
 		int nick(User &user, Input &input);
+		int user(User &user, Input &input);
 
 
 		//unused
