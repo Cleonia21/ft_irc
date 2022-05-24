@@ -15,7 +15,10 @@ enum e_search
 enum e_errors
 {
 	ERR_NEEDMOREPARAMS = 461,		//"<command> :Not enough parameters"
-	ERR_ALREADYREGISTRED = 462		//":Unauthorized command (already registered)"
+	ERR_ALREADYREGISTRED = 462,		//":Unauthorized command (already registered)"
+	ERR_NONICKNAMEGIVEN = 431,		//":No nickname given"
+	ERR_ERRONEUSNICKNAME = 432,		//"<nick> :Erroneus nickname"
+	ERR_NICKNAMEINUSE = 433			//"<nick> :Nickname is already in use"
 };
 
 void redCout(std::string text);
