@@ -1,6 +1,6 @@
 #include "Channel.hpp"
 
-Channel::Channel(std::string& name, User& creator, std::string& password)
+Channel::Channel(const std::string& name, const User& creator, const std::string& password)
 : name(name), password(password), limit(0), flags(NOMSGOUT) {
 
     users.push_back(&creator);
@@ -24,8 +24,7 @@ bool Channel::isChannelNameCorrect(const std::string &name) {
     return true;
 }
 
-int	Channel::connect(const User &user, const std::string &key)
-{
+int	Channel::connect(const User &user, const std::string &key) {
     if ((flags & PRIVATE) && key != password)
         return ERR_BADCHANNELKEY;
     else if ((flags & INVITEONLY) && !isInvited(user))
@@ -45,6 +44,7 @@ int	Channel::connect(const User &user, const std::string &key)
             }
         }
     }
+    return 0;
 }
 
 bool Channel::isInvited(const User &user) const {

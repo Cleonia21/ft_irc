@@ -15,6 +15,8 @@ enum User_states
 	USER_DISCONNECTED =	0b00000010
 };
 
+class Channel;
+
 class User
 {
 	private:

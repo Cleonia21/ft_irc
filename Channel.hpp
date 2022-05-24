@@ -14,6 +14,8 @@ enum Channel_states {
     NOMSGOUT =      0b100000
 };
 
+class User;
+
 class Channel
 {
 	private:
@@ -28,7 +30,7 @@ class Channel
         std::vector<const User *>	inviteesList;
 
 	public:
-		Channel(std::string& name, User& creator, std::string& password = "");
+		Channel(const std::string& name, const User& creator, const std::string& password = "");
         ~Channel();
         int         connect(const User &user, const std::string &key);
         static bool isChannelNameCorrect(const std::string &name);

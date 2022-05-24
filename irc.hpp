@@ -141,6 +141,8 @@ enum e_replies
 	RPL_ADMINEMAIL =		259
 };
 
+class User;
+
 int sendServerReply (const User &user, int code,
 		const std::string &arg1 = "", const std::string &arg2 = "",
 		const std::string &arg3 = "");
