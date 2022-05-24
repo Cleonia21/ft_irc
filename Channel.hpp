@@ -17,21 +17,23 @@ enum Channel_states {
 class Channel
 {
 	private:
-		std::string					name;
+    std::string					name;
 		std::vector<const User *>	users;
 		std::vector<const User *>	operators;
         char					    flags;
         std::string					password;
         int		            	    limit;
-        std::vector<std::string>	bans;
+        std::vector<const User *>	banList;
         std::string					topic;
-        std::vector<const User *>	invitedUsers;
+        std::vector<const User *>	inviteesList;
 
 	public:
-		Channel(std::string &channel_name, const User &creator, const std::string &password = "");
+		Channel(std::string& name, User& creator, std::string& password = "");
         ~Channel();
-        int connect(const User &user, const std::string &key);
+        int         connect(const User &user, const std::string &key);
         static bool isChannelNameCorrect(const std::string &name);
+        bool        isInvited(const User &user) const;
+        bool		isBanned(const User &user);
         /*
         const std::string				&getName() const;
         const std::string				&getTopic() const;
@@ -39,7 +41,7 @@ class Channel
         void							setTopic(const User &user, const std::string &topic);
         void							setLimit(unsigned short limit);
         void							setKey(const User &user, const std::string &key);
-        bool							isInvited(const User &user) const;
+
         bool							isOperator(const User &user) const;
         bool							isSpeaker(const User &user) const;
         bool							isEmpty() const;
@@ -61,4 +63,5 @@ class Channel
         void							displayChanInfo(const User &user);
         std::string						getFlagsAsString() const;
         */
+
 };

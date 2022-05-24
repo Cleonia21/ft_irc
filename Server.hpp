@@ -29,7 +29,7 @@ class Server
 		std::string									_port;
 		std::string									_password;
 		std::vector<User *>							_users;
-		std::map<std::string,Channel *>				_channels;
+		std::map<std::string, Channel *>			_channels;
 		std::map<std::string, Command>				_commands;
 		std::map<std::string, Command>::iterator 	_iter; //internal iterator for commands
 		std::string									_motd;

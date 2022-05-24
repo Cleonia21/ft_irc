@@ -1,6 +1,6 @@
 #include "Channel.hpp"
 
-Channel::Channel(std::string &name, const User &creator, const std::string &password)
+Channel::Channel(std::string& name, User& creator, std::string& password)
 : name(name), password(password), limit(0), flags(NOMSGOUT) {
 
     users.push_back(&creator);
@@ -31,17 +31,38 @@ int	Channel::connect(const User &user, const std::string &key)
     else if ((flags & INVITEONLY) && !isInvited(user))
         return ERR_INVITEONLYCHAN;
     else {
-        for (size_t i = 0; i < bans.size(); i++) {
-            if (isBanned(bans[i], user.getPrefix()))
+        for (int i = 0; i < banList.size(); i++)
+            if (isBanned(user))
                 return ERR_BANNEDFROMCHAN;
-        }
+
         std::vector<const User *>::iterator	begin = users.begin();
         std::vector<const User *>::iterator	end = users.end();
-        for (; begin != end; ++begin)
-            if ((*begin)->getPrefix() == user.getPrefix())
-                return ;
-        users.push_back(&user);
-        removeInvited(user);
-        sendInfo(user);
+        for (; begin != end; ++begin) {
+            if ((*begin)->getRealName() != user.getRealName()) {
+                users.push_back(&user);
+                //removeInvited(user);
+                //sendInfo(user);
+            }
+        }
     }
 }
+
+bool Channel::isInvited(const User &user) const {
+
+    for (int i = 0; i < inviteesList.size(); i++)
+        if (inviteesList[i]->getRealName() == user.getRealName())
+            return true;
+    return false;
+}
+
+bool Channel::isBanned(const User &user) {
+
+    for (int i = 0; i < banList.size(); i++ )
+        if (banList[i]->getRealName() == user.getRealName() )
+            return true;
+    return false;
+}
+
+
+
+

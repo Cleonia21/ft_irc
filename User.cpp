@@ -104,3 +104,5 @@ std::ostream	&operator<<( std::ostream &ostr, User &instance )
 			<< "Real name: " << instance.getRealName() << "\e[0m";
 	return (ostr);
 }
+
+void User::addNewChannel(const Channel &channel) { _channels.push_back(&channel); }

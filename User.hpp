@@ -26,7 +26,7 @@ class User
 		int				_socketfd;
 		unsigned char	_flags;
 		std::queue<std::string>		messages;
-        const std::vector<const Channel *>  _channels;
+        std::vector<const Channel *>  _channels;
 
 		//unused
 		User( void );
@@ -46,6 +46,7 @@ class User
 		void setRealName( std::string );
 		void setFlags(unsigned char user_state_enum);
 		void clearFlags(unsigned char user_state_enum);
+        void addNewChannel(const Channel& channel);
 
 		std::string getPassword( void ) const;
 		std::string getNick( void ) const;

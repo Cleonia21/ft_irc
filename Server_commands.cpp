@@ -1,4 +1,5 @@
 #include "Server.hpp"
+#include "Channel.hpp"
 
 int Server::pass(User &user, Input &input)
 {
@@ -36,42 +37,39 @@ int Server::join(User &user, Input &input) {
 
     if (input.getParams()[0] == "")
         return ERR_NEEDMOREPARAMS;
-    else
-    {
-        std::queue<std::string>	channels = User::split(input.getParams()[0], ',');
-        std::queue<std::string>	keys;
-        if (input.getParams().size() > 1)
-            keys = split(input.getParams()[1], ',');
-        for (; channels.size() > 0; channels.pop())
-        {
-            std::string	key = keys.size() ? keys.front() : "";
-            if (keys.size() > 0)
-                keys.pop();
-            if (!Channel::isChannelNameCorrect(channels.front()))
-                return ERR_NOSUCHCHANNEL;
-            else if (user.getChannels().size() >= 10)
-                return ERR_TOOMANYCHANNELS;
-            else {
-                try
-                {
-                    Channel	*tmp = _channels.at(channels.front());
-                    tmp->connect(user, key);
-                    return (1);
-                }
-                catch(const std::exception& e)
-                {
-                    channels[name] = new Channel(name, user, key);
-                }
-                return (1);
-            }
-            }
 
+    std::queue<std::string> channels = User::split(input.getParams()[0], ',');
+    std::queue<std::string> keys;
+    if (input.getParams().size() > 1)
+        keys = User::split(input.getParams()[1], ',');
 
-                if (connectToChannel(user, chans.front(), key) == 1)
-                user.addChannel(*(channels.at(chans.front())));
+    for (; !channels.empty(); channels.pop()) {
+
+        std::string channelName = channels.front();
+        std::string channelKey;
+        if (!keys.empty()) {
+            channelKey = keys.front();
+            keys.pop();
+        } else
+            channelKey = "";
+
+        if (!Channel::isChannelNameCorrect(channelName))
+            return ERR_NOSUCHCHANNEL;
+        if (user.getChannels().size() >= 10)
+            return ERR_TOOMANYCHANNELS;
+
+        try {
+            Channel *tmp = _channels.at(channelName);
+            tmp->connect(user, channelKey);
         }
+        catch (const std::exception &e) {
+            _channels[channelName] = new Channel(channelName, user, channelKey);
+        }
+        user.addNewChannel(*(_channels.at(channelName)));
     }
     return 0;
+}
+
 int Server::user(User &user, Input &input)
 {
 	if (input.getParams().size() < 4)
