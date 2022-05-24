@@ -56,6 +56,7 @@ class Server
 		int nick(User &user, Input &input);
 		int user(User &user, Input &input);
         int join(User &user, Input &input);
+        int kick(User &user, Input &input);
 
 
 		//unused

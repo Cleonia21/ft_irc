@@ -70,6 +70,43 @@ int Server::join(User &user, Input &input) {
     return 0;
 }
 
+int		Server::kick(User &user, Input &input)
+{
+    std::string channelName = input.getParams()[0];
+    std::string nickName = input.getParams()[1];
+
+    if (input.getParams().size() < 2)
+        return ERR_NEEDMOREPARAMS;
+    if (_channels.find(channelName) == _channels.end())
+        return ERR_NOSUCHCHANNEL;
+    if (!_channels.at(channelName)->isOperator(user))
+        return ERR_CHANOPRIVSNEEDED;
+    if (!_channels.at(channelName)->isChannelUser(user.getNick()))
+        return ERR_NOTONCHANNEL;
+    if (!containsNickname(nickName))
+        return ERR_NOSUCHNICK;
+    if (!_channels.at(channelName)->isChannelUser(nickName))
+        return ERR_USERNOTINCHANNEL;
+
+    Channel	*channel = _channels.at(channelName);
+    std::string	message = "KICK " + channel->getName() + " " + nickName + " :";
+    if (input.getParams().size() > 2)
+        message += input.getParams()[2];
+    else
+        message += user.getNick();
+    std::cout << message << "\n";
+    //channel->sendMessage(message + "\n", user, true);
+
+    User*	userToBeKicked;
+    for (int i = 0; i < _users.size(); i++)
+        if (_users[i]->getNick() == nickName)
+            userToBeKicked = _users[i];
+
+    channel->disconnect(*(userToBeKicked));
+
+    return 0;
+}
+
 int Server::user(User &user, Input &input)
 {
 	if (input.getParams().size() < 4)

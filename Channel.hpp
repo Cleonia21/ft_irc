@@ -19,9 +19,9 @@ class User;
 class Channel
 {
 	private:
-    std::string					name;
-		std::vector<const User *>	users;
-		std::vector<const User *>	operators;
+        std::string					name;
+		std::vector<const User *>	usersList;
+		std::vector<const User *>	operatorsList;
         char					    flags;
         std::string					password;
         int		            	    limit;
@@ -32,10 +32,17 @@ class Channel
 	public:
 		Channel(const std::string& name, const User& creator, const std::string& password = "");
         ~Channel();
-        int         connect(const User &user, const std::string &key);
-        static bool isChannelNameCorrect(const std::string &name);
-        bool        isInvited(const User &user) const;
-        bool		isBanned(const User &user);
+        int                 connect(const User &user, const std::string &key);
+        static bool         isChannelNameCorrect(const std::string &name);
+        bool                isInvited(const User &user) const;
+        bool	        	isBanned(const User &user) const;
+        bool		        isOperator(const User &user) const;
+        bool		        isChannelUser(const std::string &nick) const;
+        const std::string   &getName() const;
+        void				sendMsg(const std::string &msg, const User &from, bool includeUser) const;
+        void				disconnect(const User &user);
+        void				deleteOperator(const User &user);
+        void				deleteUser(const User &user);
         /*
         const std::string				&getName() const;
         const std::string				&getTopic() const;
