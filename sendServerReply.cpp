@@ -1,5 +1,8 @@
 #include "irc.hpp"
 
+// user - кому ответ/ошибка отправляется
+// code - номер ответа/ошибки (доступные находятся в irc.hpp)
+// arg* - необходимые аргументы для ответа/ошибки
 int sendServerReply (const User &user, int code,
 		const std::string &arg1, const std::string &arg2, const std::string &arg3)
 {
