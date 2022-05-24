@@ -6,7 +6,7 @@
 void a( void ) { std::cout << "f - a" << std::endl; }
 void b( void ) { std::cout << "f - b" << std::endl; }
 
-int activeLoop = 1;
+static int activeLoop = 1;
 
 void stopLoop(int signum)
 {
@@ -38,6 +38,7 @@ int main(int argc, char **argv)
 	Server server(port_s, argv[2]);
 	server.socketManagement();
 
+	signal(SIGPIPE, SIG_IGN); //prevents 'send' from causing SIGPIPE signal, if remote socket disconnected
 	signal(SIGINT, stopLoop);
 	while (activeLoop)
 	{
