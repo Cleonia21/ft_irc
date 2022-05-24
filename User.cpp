@@ -84,6 +84,8 @@ void User::setFlags(unsigned char user_state_enum)
 	this->_flags |= user_state_enum;
 }
 
+std::vector<const Channel *> User::getChannels() const { return _channels; }
+
 std::ostream	&operator<<( std::ostream &ostr, User &instance )
 {
 	ostr	<< "\e[0;32m" << "User:" << std::endl

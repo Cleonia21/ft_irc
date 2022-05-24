@@ -1,11 +1,13 @@
 #pragma once
 
+#include <algorithm>
 #include <iostream>
 #include <string>
 #include <queue>
 #include <iomanip>
 #include <sys/socket.h>
 #include "Input.hpp"
+#include "Channel.hpp"
 
 enum User_states
 {
@@ -26,9 +28,7 @@ class User
 		int				_socketfd;
 		unsigned char	_flags;
 		std::queue<std::string>		messages;
-
-		//functions
-		std::queue<std::string>		ft_split(std::string &data, char separator);
+        const std::vector<const Channel *>  _channels;
 
 		//unused
 		User( void );
@@ -50,8 +50,13 @@ class User
 		std::string getHostName( void ) const;
 		std::string getRealName( void ) const;
 		unsigned char getFlags( void ) const;
+        std::vector<const Channel *> getChannels() const;
 		std::queue<std::string> getMessages( void ) const;
 		int getSocketfd( void ) const;
+
+        //functions
+        //сделал статик, чтобы можно было пользоваться откуда угодно, функция будет часто нужна
+        static std::queue<std::string>		split(std::string &data, char separator);
 };
 
 std::ostream	&operator<<( std::ostream &ostr, User &instance );

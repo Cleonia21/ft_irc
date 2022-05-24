@@ -15,7 +15,12 @@ enum e_search
 enum e_errors
 {
 	ERR_NEEDMOREPARAMS = 461,		//"<command> :Not enough parameters"
-	ERR_ALREADYREGISTRED = 462		//":Unauthorized command (already registered)"
+	ERR_ALREADYREGISTRED = 462,		//":Unauthorized command (already registered)"
+    ERR_NOSUCHCHANNEL = 403,        // "<channel name> :No such channel"
+    ERR_TOOMANYCHANNELS = 405,      //"<channel name> :You have joined too many channels"
+    ERR_BADCHANNELKEY = 475,         //"<channel> :Cannot join channel (+k)"
+    ERR_INVITEONLYCHAN = 473,
+    ERR_BANNEDFROMCHAN = 474
 };
 
 void redCout(std::string text);

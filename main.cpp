@@ -1,6 +1,7 @@
 #include "irc.hpp"
 #include "Server.hpp"
 #include <map>
+#include <signal.h>
 
 void a( void ) { std::cout << "f - a" << std::endl; }
 void b( void ) { std::cout << "f - b" << std::endl; }

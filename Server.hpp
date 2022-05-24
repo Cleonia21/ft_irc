@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cstring>
 #include <iostream>
 #include <string>
 #include <vector>
@@ -27,7 +28,7 @@ class Server
 		std::string									_port;
 		std::string									_password;
 		std::vector<User *>							_users;
-		std::vector<Channel *>						_channels;
+		std::map<std::string,Channel *>				_channels;
 		std::map<std::string, Command>				_commands;
 		std::map<std::string, Command>::iterator 	_iter; //internal iterator for commands
 		std::string									_motd;
@@ -49,6 +50,7 @@ class Server
 		//commands
 		int pass(User &user, Input &input);
 		int nick(User &user, Input &input);
+//      int kick(User &user, Input &input);
 
 
 		//unused
