@@ -17,9 +17,10 @@ enum e_search
 
 enum e_errors
 {
-	ERR_NOSUCHNICK =			401,
+	ERR_ = 1,
+	ERR_NOSUCHNICK =			401, // "<nickname> :No such nick/channel"
 	ERR_NOSUCHSERVER =			402,
-	ERR_NOSUCHCHANNEL =			403,
+	ERR_NOSUCHCHANNEL =			403, // "<channel name> :No such channel"
 	ERR_CANNOTSENDTOCHAN =		404,
 	ERR_TOOMANYCHANNELS =		405,
 	ERR_WASNOSUCHNICK =			406,
@@ -51,12 +52,12 @@ enum e_errors
 	ERR_YOUREBANNEDCREEP =		465,
 	ERR_KEYSET =				467,
 	ERR_CHANNELISFULL =			471,
-	ERR_UNKNOWNMODE =			472,
+	ERR_UNKNOWNMODE =			472, // "<char> :is unknown mode char to me"
 	ERR_INVITEONLYCHAN =		473,
 	ERR_BANNEDFROMCHAN =		474,
 	ERR_BADCHANNELKEY =			475,
 	ERR_NOPRIVILEGES =			481,
-	ERR_CHANOPRIVSNEEDED =		482,
+	ERR_CHANOPRIVSNEEDED =		482, // "<channel> :You're not channel operator"
 	ERR_CANTKILLSERVER =		483,
 	ERR_NOOPERHOST =			491,
 	ERR_UMODEUNKNOWNFLAG =		501,
@@ -140,6 +141,8 @@ enum e_replies
 	RPL_ADMINLOC2 =			258,
 	RPL_ADMINEMAIL =		259
 };
+
+class User;
 
 int sendServerReply (const User &user, int code,
 		const std::string &arg1 = "", const std::string &arg2 = "",

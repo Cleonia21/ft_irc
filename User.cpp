@@ -36,10 +36,10 @@ void User::processMessage(void)
 	while (data.find("\r\n") != std::string::npos)
 		data.replace(data.find("\r\n"), 2, "\n");
 	if (data.size() > 1)
-		messages = ft_split(data, '\n');
+		messages = split(data, '\n');
 }
 
-std::queue<std::string> User::ft_split(std::string &data, char separator)
+std::queue<std::string> User::split(std::string &data, char separator)
 {
 	std::queue<std::string> new_messages;
 	std::string::iterator i = data.begin();
@@ -103,6 +103,11 @@ std::ostream	&operator<<( std::ostream &ostr, User &instance )
 			<< "Host name: " << instance.getHostName() << std::endl
 			<< "Real name: " << instance.getRealName() << "\e[0m";
 	return (ostr);
+}
+
+bool User::operator==(const User &a)
+{
+	return (this->getNick() == a.getNick());
 }
 
 void User::addNewChannel(const Channel &channel) { _channels.push_back(&channel); }

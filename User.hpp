@@ -15,6 +15,8 @@ enum User_states
 	USER_DISCONNECTED =	0b00000010
 };
 
+class Channel;
+
 class User
 {
 	private:
@@ -57,6 +59,8 @@ class User
         std::vector<const Channel *> getChannels() const;
 		std::queue<std::string> getMessages( void ) const;
 		int getSocketfd( void ) const;
+
+		bool operator==(const User &a);
 
         //functions
         //сделал статик, чтобы можно было пользоваться откуда угодно, функция будет часто нужна

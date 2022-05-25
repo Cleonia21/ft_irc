@@ -7,6 +7,7 @@ Server::Server(std::string server_port, std::string server_password) :
 	_commands["PASS"] = &Server::pass;
 	_commands["NICK"] = &Server::nick;
 	_commands["USER"] = &Server::user;
+	_commands["MODE"] = &Server::mode;
 	_motd = "Welcome to IRCserv!";
 	memset(&hints, 0, sizeof(hints)); //making sure addrinfo is empty
 }

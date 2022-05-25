@@ -19,7 +19,7 @@
 #include "Input.hpp"
 #include "irc.hpp"
 
-#define SERVER_DISCONNECT -1
+#define SERVER_DISCONNECT -2
 
 class Server
 {
@@ -55,7 +55,9 @@ class Server
 		int pass(User &user, Input &input);
 		int nick(User &user, Input &input);
 		int user(User &user, Input &input);
-		int join(User &user, Input &input);
+        int join(User &user, Input &input);
+        int kick(User &user, Input &input);
+		int mode(User &user, Input &input);
 
 
 		//unused
