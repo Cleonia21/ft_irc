@@ -68,20 +68,31 @@ std::string User::getNextMessage(void)
 }
 
 
+std::string User::getPassword( void ) const { return (_password); }
 std::string User::getNick( void ) const { return (_nick); }
 std::string User::getHostName( void ) const { return (_hostName); }
+std::string User::getUserName( void ) const { return (_userName); }
 std::string User::getRealName( void ) const { return (_realName); }
 unsigned char User::getFlags( void ) const { return this->_flags; }
 std::queue<std::string> User::getMessages( void ) const { return this->messages; }
 int User::getSocketfd( void ) const { return this->_socketfd; }
 
+void User::setPassword( std::string password ) { _password = password; }
 void User::setNick( std::string nick ) { _nick = nick; }
 void User::setHostName( std::string hostName ) { _hostName = hostName; }
+void User::setUserName( std::string userName) { _userName = userName; }
 void User::setRealName( std::string realName) { _realName = realName; }
 void User::setFlags(unsigned char user_state_enum)
 {
 	// '|=' - set bit to needed value
 	this->_flags |= user_state_enum;
+}
+
+std::vector<const Channel *> User::getChannels() const { return _channels; }
+
+void User::clearFlags(unsigned char user_state_enum)
+{
+	this->_flags &= ~user_state_enum;
 }
 
 std::ostream	&operator<<( std::ostream &ostr, User &instance )
@@ -93,3 +104,5 @@ std::ostream	&operator<<( std::ostream &ostr, User &instance )
 			<< "Real name: " << instance.getRealName() << "\e[0m";
 	return (ostr);
 }
+
+void User::addNewChannel(const Channel &channel) { _channels.push_back(&channel); }

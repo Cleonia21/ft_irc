@@ -6,7 +6,7 @@ Server::Server(std::string server_port, std::string server_password) :
 {
 	_commands["PASS"] = &Server::pass;
 	_commands["NICK"] = &Server::nick;
-
+	_commands["USER"] = &Server::user;
 	_motd = "Welcome to IRCserv!";
 	memset(&hints, 0, sizeof(hints)); //making sure addrinfo is empty
 }
@@ -47,18 +47,6 @@ void Server::socketGetaddrinfo(void)
 		std::cout << ", Errno: " << errno << std::endl;
 		exit(EXIT_FAILURE);
 	}
-	
-/*	void *addr;
-	char ipstr[INET6_ADDRSTRLEN];
-	addrinfo *p;
-	for (p = res; p != NULL; p = p->ai_next)
-	{
-		sockaddr_in *ipv4 = (sockaddr_in *)res->ai_addr;
-		addr = &(ipv4->sin_addr);
-		inet_ntop(res->ai_family, addr, ipstr, sizeof(ipstr));
-		std::cout << ipstr << std::endl;
-	}
-*/
 }
 
 void Server::socketCreate(void)
@@ -178,14 +166,20 @@ void Server::execution(User &user)
 		if (!(user.getFlags() & USER_REGISTERED) &&
 				cmd.getCommand() != "QUIT" && cmd.getCommand() != "PASS" &&
 				cmd.getCommand() != "USER" && cmd.getCommand() != "NICK")
-		//	send(user.getSocketfd(), "Not registered\n", 15, 0); //temporary disabled to not get spammed
-			;
+			sendServerReply(user, ERR_NOTREGISTERED);
 		else
 		{
 			if (_iter == _commands.end()) //проверяем наличие команды
-				send(user.getSocketfd(), "Error, command not found\n", 25, 0);
+				sendServerReply(user, ERR_UNKNOWNCOMMAND, cmd.getCommand());
 			else
-				(this->*_iter->second)(*this->_users[0], cmd); //запускаем команду
+			{
+				int ret = (this->*_iter->second)(*this->_users[0], cmd); //запускаем команду
+				if (ret == SERVER_DISCONNECT)
+				{
+					user.setFlags(USER_DISCONNECTED);
+					return ;
+				}
+			}
 		}
 	}
 }
@@ -206,6 +200,31 @@ void Server::disconnectUsers(void)
 		pollfds.erase(pollfds.begin() + i + 1);
 		i--;
 	}
+}
+
+bool Server::isNickValid(std::string &nick) const
+{
+	if (nick.length() > 9)
+		return (false);
+	std::string specials = "-\\`^[]{}";
+	for (size_t i = 0; i < nick.size(); i++)
+	{
+		if (!((nick[i] >= 'a' && nick[i] <= 'z')
+		|| (nick[i] >= 'A' && nick[i] <= 'Z')
+		|| (nick[i] >= '0' && nick[i] <= '9')
+		|| (specials.find(nick[i]) != std::string::npos)))
+			return (false);
+	}
+	return (true);
+}
+
+bool Server::containsNickname(const std::string &nick) const
+{
+	size_t count = _users.size();
+	for (size_t i = 0; i < count; i++)
+		if (_users[i]->getNick() == nick)
+			return (true);
+	return (false);
 }
 
 User *Server::searchUser(int key, std::string znch)
