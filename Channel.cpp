@@ -79,19 +79,19 @@ bool Channel::isChannelUser(const std::string &nick) const {
 
 const std::string& Channel::getName() const { return name; }
 
-/*
-void	Channel::sendMsg(const std::string &msg, const User &from, bool includeUser) const {
 
-    std::string	message;
-    message += ":" + from.getNick() + " " + msg;
-    std::vector<const User *>::const_iterator	begin = usersList.begin();
-    std::vector<const User *>::const_iterator	end = usersList.end();
-    for (; begin != end; ++begin)
-    {
-        if (includeUser || *begin != &from)
-            (*begin)->sendMessage(msg);
-    }
-}*/
+void	Channel::sendMsg(const std::string &msg, const User &from, bool includeUser) const
+{
+	std::string message;
+	message += ":" + from.getNick() + " " + msg;
+	std::vector<const User *>::const_iterator	begin = usersList.begin();
+	std::vector<const User *>::const_iterator	end = usersList.end();
+	for (; begin != end; ++begin)
+	{
+		if (includeUser || *begin != &from)
+			(*begin)->sendMessage(message);
+	}
+}
 
 void Channel::disconnect(const User &user) {
 
@@ -158,7 +158,17 @@ void Channel::deleteUser(const User &user) {
     }
 }
 
+unsigned char Channel::getFlags(void) const
+{
+	return (flags);
+}
+
 void	Channel::setFlag(unsigned char flag)
 {
     this->flags |= flag;
+}
+
+void	Channel::clearFlag(unsigned char flag)
+{
+    this->flags &= ~flag;
 }

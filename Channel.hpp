@@ -45,16 +45,19 @@ class Channel
 		void				deleteUser(const User &user);
 
 		void				setFlag(unsigned char flag);
+		void				clearFlag(unsigned char flag);
 		void				addOperator(const User &user);
 		void				setLimit(int limit);
 		void				addBanMask(const std::string &mask);
 		void				removeBanMask(const std::string &mask);
 		void				setPass(const std::string);
 		void				removePass(void);
+
+		unsigned char					getFlags() const;
+
 		/*
 		const std::string				&getName() const;
 		const std::string				&getTopic() const;
-		unsigned char					getFlags() const;
 		void							setTopic(const User &user, const std::string &topic);
 		void							setKey(const User &user, const std::string &key);
 

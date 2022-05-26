@@ -18,6 +18,10 @@ enum e_search
 enum e_errors
 {
 	ERR_ = 1,
+	RPL_WELCOME =				001, //"Welcome to the Internet Relay Network <nick>!<user>@<host>"
+    RPL_YOURHOST =				002, //"Your host is <servername>, running version <ver>"
+    RPL_CREATED =				003, //"This server was created <date>"
+    RPL_MYINFO =				004, //"<servername> <version> <available user modes> <available channel modes>"
 	ERR_NOSUCHNICK =			401, // "<nickname> :No such nick/channel"
 	ERR_NOSUCHSERVER =			402,
 	ERR_NOSUCHCHANNEL =			403, // "<channel name> :No such channel"
@@ -146,7 +150,7 @@ class User;
 
 int sendServerReply (const User &user, int code,
 		const std::string &arg1 = "", const std::string &arg2 = "",
-		const std::string &arg3 = "");
+		const std::string &arg3 = "", const std::string &arg4 = "");
 
 void redCout(std::string text);
 void yellowCout(std::string text);

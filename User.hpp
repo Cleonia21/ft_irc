@@ -15,6 +15,8 @@ enum User_states
 	USER_DISCONNECTED =	0b00000010
 };
 
+#define NO_SEPARATOR 0
+
 class Channel;
 
 class User
@@ -40,6 +42,8 @@ class User
 
 		void processMessage(void);
 		std::string getNextMessage( void );
+        void addNewChannel(const Channel& channel);
+		void sendMessage(const std::string message) const;
 
 		void setPassword( std::string );
 		void setNick( std::string );
@@ -48,13 +52,13 @@ class User
 		void setRealName( std::string );
 		void setFlags(unsigned char user_state_enum);
 		void clearFlags(unsigned char user_state_enum);
-        void addNewChannel(const Channel& channel);
 
 		std::string getPassword( void ) const;
 		std::string getNick( void ) const;
 		std::string getHostName( void ) const;
 		std::string getUserName( void ) const;
 		std::string getRealName( void ) const;
+		std::string getMask( void ) const;
 		unsigned char getFlags( void ) const;
         std::vector<const Channel *> getChannels() const;
 		std::queue<std::string> getMessages( void ) const;
@@ -64,7 +68,8 @@ class User
 
         //functions
         //сделал статик, чтобы можно было пользоваться откуда угодно, функция будет часто нужна
-        static std::queue<std::string>		split(std::string &data, char separator);
+		static std::queue<std::string>		split(std::string &data, char separator);
+		static std::queue<std::string> split(const std::string &data, char separator, int no_separator);
 };
 
 std::ostream	&operator<<( std::ostream &ostr, User &instance );
