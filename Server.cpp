@@ -284,7 +284,7 @@ bool Server::printer(Input &input)
 		std::cout << "My channels" << std::endl;
 		std::map<std::string, Channel *>::iterator chanels = _channels.begin();
 		for ( ; chanels != _channels.end(); chanels++)
-			std::cout << ((*chanels).second) << std::endl;
+			std::cout << *((*chanels).second) << std::endl;
 	}
 	else
 		std::cout << "su users/channels";
