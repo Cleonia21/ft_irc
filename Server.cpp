@@ -10,8 +10,8 @@ Server::Server(std::string server_port, std::string server_password) :
 	_commands["MODE"] = &Server::mode;
 	_commands["PRIVMSG"] = &Server::privmsg;
 	_commands["NOTICE"] = &Server::notice;
-    _commands["USER"] = &Server::join;
-    _commands["MODE"] = &Server::kick;
+    _commands["JOIN"] = &Server::join;
+    _commands["KICK"] = &Server::kick;
 	_motd.push_back("Welcome to IRCserv!");
 	_motd.push_back("Be good!");
 	memset(&hints, 0, sizeof(hints)); //making sure addrinfo is empty
@@ -272,7 +272,9 @@ bool Server::printer(Input &input)
 {
 	if (input.getCommand() != "su")
 		return (false);
-	if (input.getParams()[0] == "users")
+	if (input.getParams().empty())
+		std::cout << "Use su users/channels" << std::endl;
+	else if (input.getParams()[0] == "users")
 	{
 		std::cout << "My users:" << std::endl;
 		std::vector<User *>::iterator users = _users.begin();
@@ -287,6 +289,6 @@ bool Server::printer(Input &input)
 			std::cout << *((*chanels).second) << std::endl;
 	}
 	else
-		std::cout << "su users/channels";
+		std::cout << "Use su users/channels" << std::endl;
 	return (true);
 }

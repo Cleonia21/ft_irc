@@ -54,7 +54,7 @@ class Channel
 		void				removePass(void);
         void				sendChannelUsers(const User &user);
         void				sendTopic(const User &user);
-
+        void                sendJoinSuccessResponce(const User &user);
 		unsigned char					getFlags() const;
 
 		//служебные для вывода
@@ -87,7 +87,7 @@ class Channel
 		void							displayChanInfo(const User &user);
 		std::string						getFlagsAsString() const;
 		*/
-
+		void	            sendNotification(const std::string &msg, const User &user) const;
 };
 
 std::ostream	&operator<<( std::ostream &ostr, const Channel &instance );
