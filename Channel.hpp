@@ -58,29 +58,4 @@ class Channel
 		unsigned char					getFlags() const;
         void	            sendNotification(const std::string &msg, const User &user) const;
 
-		/*
-		const std::string				&getName() const;
-		const std::string				&getTopic() const;
-		void							setTopic(const User &user, const std::string &topic);
-		void							setKey(const User &user, const std::string &key);
-
-		bool							isOperator(const User &user) const;
-		bool							isSpeaker(const User &user) const;
-		bool							isEmpty() const;
-		bool							containsNickname(const std::string &nickname) const;
-		void							removeFlag(unsigned char flag);
-		void							sendMessage(const std::string &message, const User &from, bool includeUser) const;
-		void							invite(const User &user, const User &receiver);
-		void							addOperator(const User &user);
-		void							removeOperator(const User &user);
-		void							addSpeaker(const User &user);
-		void							removeSpeaker(const User &user);
-		void							addBanMask(const std::string &mask);
-		void							removeBanMask(const std::string &mask);
-		void							disconnect(const User &user);
-		void							removeInvited(const User &user);
-		void							displayChanInfo(const User &user);
-		std::string						getFlagsAsString() const;
-		*/
-
 };
