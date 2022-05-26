@@ -95,7 +95,7 @@ void Server::sendMOTD(const User &user) const
 int Server::join(User &user, Input &input) {
 
 	if (input.getParams()[0] == "")
-		return ERR_NEEDMOREPARAMS;
+        sendServerReply(user, ERR_NEEDMOREPARAMS, "JOIN");
 
 	std::queue<std::string> channels = User::split(input.getParams()[0], ',');
 	std::queue<std::string> keys;
@@ -113,18 +113,19 @@ int Server::join(User &user, Input &input) {
 			channelKey = "";
 
 		if (!Channel::isChannelNameCorrect(channelName))
-			return ERR_NOSUCHCHANNEL;
-		if (user.getChannels().size() >= 10)
-			return ERR_TOOMANYCHANNELS;
-
-		try {
-			Channel *tmp = _channels.at(channelName);
-			tmp->connect(user, channelKey);
-		}
-		catch (const std::exception &e) {
-			_channels[channelName] = new Channel(channelName, user, channelKey);
-		}
-		user.addNewChannel(*(_channels.at(channelName)));
+            sendServerReply(user, ERR_NOSUCHCHANNEL, channelName);
+		else if (user.getChannels().size() >= 10)
+            sendServerReply(user, ERR_TOOMANYCHANNELS, channelName);
+        else {
+            try {
+                Channel *tmp = _channels.at(channelName);
+                tmp->connect(user, channelKey);
+            }
+            catch (const std::exception &e) {
+                _channels[channelName] = new Channel(channelName, user, channelKey);
+            }
+            user.addNewChannel(*(_channels.at(channelName)));
+        }
 	}
 	return 0;
 }
@@ -135,35 +136,35 @@ int		Server::kick(User &user, Input &input)
 	std::string nickName = input.getParams()[1];
 
 	if (input.getParams().size() < 2)
-		return ERR_NEEDMOREPARAMS;
-	if (_channels.find(channelName) == _channels.end())
-		return ERR_NOSUCHCHANNEL;
-	if (!_channels.at(channelName)->isOperator(user))
-		return ERR_CHANOPRIVSNEEDED;
-	if (!_channels.at(channelName)->isChannelUser(user.getNick()))
-		return ERR_NOTONCHANNEL;
-	if (!containsNickname(nickName))
-		return ERR_NOSUCHNICK;
-	if (!_channels.at(channelName)->isChannelUser(nickName))
-		return ERR_USERNOTINCHANNEL;
+        sendServerReply(user, ERR_NEEDMOREPARAMS, "KICK");
+	else if (_channels.find(channelName) == _channels.end())
+        sendServerReply(user, ERR_NOSUCHCHANNEL, channelName);
+    else if (!_channels.at(channelName)->isOperator(user))
+        sendServerReply(user, ERR_CHANOPRIVSNEEDED, channelName);
+    else if (!_channels.at(channelName)->isChannelUser(user.getNick()))
+        sendServerReply(user, ERR_NOTONCHANNEL, channelName);
+    else if (!containsNickname(nickName))
+        sendServerReply(user, ERR_NOSUCHNICK, nickName);
+    else if (!_channels.at(channelName)->isChannelUser(nickName))
+        sendServerReply(user, ERR_USERNOTINCHANNEL, nickName, channelName);
+    else {
+        Channel *channel = _channels.at(channelName);
+        std::string message = " KICK " + channel->getName() + " " + nickName + " ";
 
-	Channel	*channel = _channels.at(channelName);
-	std::string	message = "KICK " + channel->getName() + " " + nickName + " :";
-	if (input.getParams().size() > 2)
-		message += input.getParams()[2];
-	else
-		message += user.getNick();
-	std::cout << message << "\n";
-	//channel->sendMessage(message + "\n", user, true);
+        if (input.getParams().size() > 2)
+            message += input.getParams()[2];
+        else
+            message += ":no reason";
 
-	User*	userToBeKicked;
-	for (int i = 0; i < _users.size(); i++)
-		if (_users[i]->getNick() == nickName)
-			userToBeKicked = _users[i];
-
-	channel->disconnect(*(userToBeKicked));
-
-	return 0;
+        std::cout << message << "\n";
+        channel->sendNotification(message, user);
+        User *userToBeKicked;
+        for (int i = 0; i < _users.size(); i++)
+            if (_users[i]->getNick() == nickName)
+                userToBeKicked = _users[i];
+        channel->disconnect(*(userToBeKicked));
+    }
+    return 0;
 }
 
 
@@ -343,7 +344,7 @@ int Server::sendPM(User &user, Input &input, int silent)
 			if (!check)
 			{
 				std::string msg = input.getCommand() + " " + channel + " :" + input.getParams()[1] + "\n";
-				_channels[channel]->sendMsg(msg, user, false);
+				_channels[channel]->sendNotification(msg, user);
 			}
 		}
 		else //Для юзеров

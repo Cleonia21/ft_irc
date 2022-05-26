@@ -54,8 +54,9 @@ class Channel
 		void				removePass(void);
         void				sendChannelUsers(const User &user);
         void				sendTopic(const User &user);
-
+        void                sendJoinSuccessResponce(const User &user);
 		unsigned char					getFlags() const;
+        void	            sendNotification(const std::string &msg, const User &user) const;
 
 		/*
 		const std::string				&getName() const;

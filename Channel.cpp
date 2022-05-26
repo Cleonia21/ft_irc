@@ -6,9 +6,14 @@ Channel::Channel(const std::string& name, const User& creator, const std::string
     _usersList.push_back(&creator);
     _operatorsList.push_back(&creator);
 
-    creator.sendMessage(":" + creator.getNick() + " " + "JOIN :" + _name + "\n");
-    sendTopic(creator);
-    sendChannelUsers(creator);
+    sendJoinSuccessResponce(creator);
+}
+
+void Channel::sendJoinSuccessResponce(const User &user) {
+
+    user.sendMessage(":" + user.getNick() + " " + "JOIN :" + _name + "\n");
+    sendTopic(user);
+    sendChannelUsers(user);
 }
 
 void Channel::sendTopic(const User &user) {
@@ -72,7 +77,7 @@ int	Channel::connect(const User &user, const std::string &key) {
             if ((*begin)->getNick() != user.getNick()) {
                 _usersList.push_back(&user);
                 //removeInvited(user);
-                //sendInfo(user);
+                sendJoinSuccessResponce(user);
             }
         }
     }
@@ -112,17 +117,14 @@ bool Channel::isChannelUser(const std::string &nick) const {
 const std::string& Channel::getName() const { return _name; }
 
 
-void	Channel::sendMsg(const std::string &msg, const User &from, bool includeUser) const
+void	Channel::sendNotification(const std::string &msg, const User &user) const
 {
 	std::string message;
-	message += ":" + from.getNick() + " " + msg;
+	message += ":" + user.getMask() + " " + msg + "\n";
 	std::vector<const User *>::const_iterator	begin = _usersList.begin();
 	std::vector<const User *>::const_iterator	end = _usersList.end();
 	for (; begin != end; ++begin)
-	{
-		if (includeUser || *begin != &from)
-			(*begin)->sendMessage(message);
-	}
+        (*begin)->sendMessage(message);
 }
 
 void Channel::disconnect(const User &user) {
