@@ -59,6 +59,7 @@ class Server
         int kick(User &user, Input &input);
 		int mode(User &user, Input &input);
 
+		bool printer(Input &input);
 
 		//unused
 		Server(void);

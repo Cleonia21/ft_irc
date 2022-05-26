@@ -8,6 +8,8 @@ Server::Server(std::string server_port, std::string server_password) :
 	_commands["NICK"] = &Server::nick;
 	_commands["USER"] = &Server::user;
 	_commands["MODE"] = &Server::mode;
+	_commands["JOIN"] = &Server::join;
+	_commands["KICK"] = &Server::kick;
 	_motd = "Welcome to IRCserv!";
 	memset(&hints, 0, sizeof(hints)); //making sure addrinfo is empty
 }
@@ -161,6 +163,10 @@ void Server::execution(User &user)
 			user.getMessages().front()[user.getMessages().front().size() - 1] == '\n')
 	{
 		Input cmd(user.getNextMessage());
+
+		if (this->printer(cmd))
+			continue;
+
 		std::cout << "User IP: " << user.getHostName() << " Socket: " << user.getSocketfd() << std::endl
 			<< cmd << std::endl; //log of message
 		_iter = _commands.find(cmd.getCommand());
@@ -248,3 +254,25 @@ User *Server::searchUser(int key, std::string znch)
 	return (NULL);
 }
 
+bool Server::printer(Input &input)
+{
+	if (input.getCommand() != "su")
+		return (false);
+	if (input.getParams()[0] == "users")
+	{
+		std::cout << "My users:" << std::endl;
+		std::vector<User *>::iterator users = _users.begin();
+		for ( ; users != _users.end(); users++)
+			std::cout << **users << std::endl;
+	}
+	else if (input.getParams()[0] == "channels")
+	{
+		std::cout << "My channels" << std::endl;
+		std::map<std::string, Channel *>::iterator chanels = _channels.begin();
+		for ( ; chanels != _channels.end(); chanels++)
+			std::cout << ((*chanels).second) << std::endl;
+	}
+	else
+		std::cout << "su users/channels";
+	return (true);
+}

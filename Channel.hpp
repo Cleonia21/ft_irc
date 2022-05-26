@@ -28,6 +28,7 @@ class Channel
 		std::vector<const User *>	banList;
 		std::string					topic;
 		std::vector<const User *>	inviteesList;
+	
 
 	public:
 		Channel(const std::string& name, const User& creator, const std::string& password = "");
@@ -45,12 +46,20 @@ class Channel
 		void				deleteUser(const User &user);
 
 		void				setFlag(unsigned char flag);
+		unsigned char		getFlags() const;
 		void				addOperator(const User &user);
 		void				setLimit(int limit);
 		void				addBanMask(const std::string &mask);
 		void				removeBanMask(const std::string &mask);
 		void				setPass(const std::string);
 		void				removePass(void);
+
+		//служебные для вывода
+		std::vector<const User *> getUsers() const;
+		std::vector<const User *> getOperators() const;
+		std::string	getPass() const;
+		int	getLimit() const;
+
 		/*
 		const std::string				&getName() const;
 		const std::string				&getTopic() const;
@@ -80,3 +89,5 @@ class Channel
 		*/
 
 };
+
+std::ostream	&operator<<( std::ostream &ostr, const Channel &instance );

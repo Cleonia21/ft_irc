@@ -67,4 +67,4 @@ class User
         static std::queue<std::string>		split(std::string &data, char separator);
 };
 
-std::ostream	&operator<<( std::ostream &ostr, User &instance );
+std::ostream	&operator<<( std::ostream &ostr, const User &instance );

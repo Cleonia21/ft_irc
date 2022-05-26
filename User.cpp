@@ -95,13 +95,13 @@ void User::clearFlags(unsigned char user_state_enum)
 	this->_flags &= ~user_state_enum;
 }
 
-std::ostream	&operator<<( std::ostream &ostr, User &instance )
+std::ostream	&operator<<( std::ostream &ostr, const User &instance )
 {
-	ostr	<< "\e[0;32m" << "User:" << std::endl
+	ostr	<< "\e[0;31m" << "User: " << instance.getNick() << std::endl
 			<< "Socket:    " << instance.getSocketfd() << std::endl
-			<< "Nick:      " << instance.getNick() << std::endl
+			<< "User name: " << instance.getUserName() << std::endl
 			<< "Host name: " << instance.getHostName() << std::endl
-			<< "Real name: " << instance.getRealName() << "\e[0m";
+			<< "Real name: " << instance.getRealName() << "\e[0m" << std::endl;
 	return (ostr);
 }
 
