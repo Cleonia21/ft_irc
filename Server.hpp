@@ -6,6 +6,7 @@
 #include <vector>
 #include <queue>
 #include <map>
+#include <set>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netdb.h>
@@ -32,7 +33,7 @@ class Server
 		std::map<std::string, Channel *>			_channels;
 		std::map<std::string, Command>				_commands;
 		std::map<std::string, Command>::iterator 	_iter; //internal iterator for commands
-		std::string									_motd;
+		std::vector<std::string>					_motd;
 
 		int											socketfd;
 		addrinfo									hints, *res;
@@ -41,7 +42,11 @@ class Server
 		//utility functions
 		bool isNickValid(std::string &nick) const;
 		bool containsNickname(const std::string &nick) const;
+		bool containsChannel(const std::string &channel) const;
 		int checkForRegistration(User &user);
+		void sendWelcome(const User &user) const;
+		void sendMOTD(const User &user) const;
+		int sendPM(User &user, Input &input, int silent);
 
 		//socketManagement
 		void socketGetaddrinfo(void);
@@ -58,6 +63,8 @@ class Server
         int join(User &user, Input &input);
         int kick(User &user, Input &input);
 		int mode(User &user, Input &input);
+		int privmsg(User &user, Input &input);
+		int notice(User &user, Input &input);
 
 		bool printer(Input &input);
 

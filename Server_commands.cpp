@@ -33,6 +33,65 @@ int Server::nick(User &user, Input &input)
 	return (checkForRegistration(user));
 }
 
+int Server::user(User &user, Input &input)
+{
+	if (input.getParams().size() < 4)
+		sendServerReply(user, ERR_NEEDMOREPARAMS, input.getCommand());
+	else if (user.getFlags() & USER_REGISTERED)
+		sendServerReply(user, ERR_ALREADYREGISTRED);
+	else
+	{
+		user.setUserName(input.getParams()[0]);
+		user.setRealName(input.getParams()[3]);
+	}
+	return (checkForRegistration(user));
+}
+
+// Суть данного чека: Проверка пароля только если и ник и имя было указано.
+// Если же пароль не верен (была или не была использована команда PASS - неважно), то клиент отключается
+int Server::checkForRegistration(User &user)
+{
+	if (user.getNick().size() == 0 || user.getUserName().size() == 0) //Чек на наличие ника и имени
+		return (0);
+	if (!(_password.size() == 0 || user.getPassword() == _password)) //Чек на пароль
+		return (SERVER_DISCONNECT);
+
+	if (!(user.getFlags() & USER_REGISTERED))
+	{
+		user.setFlags(USER_REGISTERED);
+		sendWelcome(user);
+		sendMOTD(user);
+	}
+	return (0);
+}
+
+void Server::sendWelcome(const User &user) const
+{
+	std::string version = "0.678";
+	std::string date = "Today";
+	sendServerReply(user, RPL_WELCOME, user.getNick(), user.getUserName(), user.getHostName());
+	sendServerReply(user, RPL_YOURHOST, ircName, version);
+	sendServerReply(user, RPL_CREATED, date);
+	sendServerReply(user, RPL_MYINFO, ircName, version, "i", "biklmnopstv");
+}
+
+void Server::sendMOTD(const User &user) const
+{
+	if (_motd.size() == 0)
+		sendServerReply(user, ERR_NOMOTD);
+	else
+	{
+		sendServerReply(user, RPL_MOTDSTART, ircName);
+		for (size_t i = 0; i < _motd.size(); ++i)
+			sendServerReply(user, RPL_MOTD, _motd[i]);
+		sendServerReply(user, RPL_ENDOFMOTD);
+	}
+}
+
+/*
+ ****************************************************************************
+ */
+
 int Server::join(User &user, Input &input) {
 
 	if (input.getParams()[0] == "")
@@ -107,19 +166,7 @@ int		Server::kick(User &user, Input &input)
 	return 0;
 }
 
-int Server::user(User &user, Input &input)
-{
-	if (input.getParams().size() < 4)
-		sendServerReply(user, ERR_NEEDMOREPARAMS, input.getCommand());
-	else if (user.getFlags() & USER_REGISTERED)
-		sendServerReply(user, ERR_ALREADYREGISTRED);
-	else
-	{
-		user.setUserName(input.getParams()[0]);
-		user.setRealName(input.getParams()[3]);
-	}
-	return (checkForRegistration(user));
-}
+
 
 bool checkFlagsForValid(std::string _flags)
 {
@@ -215,8 +262,9 @@ int Server::mode(User &user, Input &input)
 					channel->removePass();
 			}
 			if (flags[0] == '-')
-				flag = ~flag;
-			channel->setFlag(flag);
+				channel->clearFlag(flag);
+			else
+				channel->setFlag(flag);
 		}
 	}
 	return (0);
@@ -236,19 +284,92 @@ v – брать/давать возможность голоса при мод�
 k – установка пароля на канал.
 */
 
-// Суть данного чека: Проверка пароля только если и ник и имя было указано.
-// Если же пароль не верен (была или не была использована команда PASS - неважно), то клиент отключается
-int Server::checkForRegistration(User &user)
+static int pm_or_notice(User &user, Input &input, int code, int silent)
 {
-	if (user.getNick().size() == 0 || user.getUserName().size() == 0) //Чек на наличие ника и имени
-		return (0);
-	if (!(_password.size() == 0 || user.getPassword() == _password)) //Чек на пароль
-		return (SERVER_DISCONNECT);
+	if (silent)
+		return (-1);
+	return (sendServerReply(user, code, input.getCommand()));
+}
 
-	if (!(user.getFlags() & USER_REGISTERED))
+static int pm_or_notice(User &user, Input &input, int code, int silent, const std::string &name)
+{
+	if (silent)
+		return (-1);
+	return (sendServerReply(user, code, name));
+}
+
+
+int Server::sendPM(User &user, Input &input, int silent)
+{
+	if (input.getParams().size() == 0) //Only command present
+		return (pm_or_notice(user, input, ERR_NORECIPIENT, silent));
+	if (input.getParams().size() == 1) //Only command and recipient present
+		return (pm_or_notice(user, input, ERR_NEEDMOREPARAMS, silent));
+	if (input.getParams()[1].size() == 0) //Empty message (just "")
+		return (pm_or_notice(user, input, ERR_NOTEXTTOSEND, silent));
+
+	std::queue<std::string> receivers = User::split(input.getParams()[0], ',', 1);
+	std::set<std::string> finalReceivers;
+	std::pair<std::set<std::string>::iterator, bool> check_pair;
+
+	while (receivers.size() != 0)
 	{
-		user.setFlags(USER_REGISTERED);
-		/////// Send MOTD on registration
+		int check; //переменная, показывающая что сервер отправил ошибку
+		check_pair = finalReceivers.insert(receivers.front());
+		if (check_pair.second == false)
+		{
+			receivers.pop();
+			continue ;
+		}
+		if (receivers.front()[0] == '#' || receivers.front()[0] == '&') //Для каналов
+		{
+			check = 0;
+			std::string channel = receivers.front();
+			if (!containsChannel(channel)) //Нет канала
+				check = pm_or_notice(user, input, ERR_NOSUCHNICK, silent, channel);
+			else if (!_channels[channel]->isChannelUser(user.getNick())) //Нет юзера на канале
+			{
+				if (_channels[channel]->getFlags() & CHL_NOMSGOUT) //Не разрешены внешние сообщения
+					check = pm_or_notice(user, input, ERR_CANNOTSENDTOCHAN, silent);
+				if (_channels[channel]->getFlags() & CHL_MODERATED) //Нельзя писать на модерируемый
+					check = pm_or_notice(user, input, ERR_CANNOTSENDTOCHAN, silent);
+			}
+			//Юзер на канале, остается узнать есть ли права писать, если канал модерируется
+			else if (_channels[channel]->getFlags() & CHL_MODERATED
+					&& !_channels[channel]->isOperator(user)) //добавить чек на спикера
+				check = pm_or_notice(user, input, ERR_CANNOTSENDTOCHAN, silent);
+
+			//Если в верхние if не зашли (т.е. все правильно), то отправляем сообщение
+			if (!check)
+			{
+				std::string msg = input.getCommand() + " " + channel + " :" + input.getParams()[1] + "\n";
+				_channels[channel]->sendMsg(msg, user, false);
+			}
+		}
+		else //Для юзеров
+		{
+			check = 0;
+			if (!containsNickname(receivers.front()))
+				check = pm_or_notice(user, input, ERR_NOSUCHNICK, silent, receivers.front());
+			if (!check)
+			{
+				User *recipient = searchUser(SRCH_NICK, receivers.front());
+				std::string msg = ":" + user.getMask() + " " + input.getCommand() + " " + recipient->getNick() + " :" + input.getParams()[1] + "\n";
+				recipient->sendMessage(msg);
+			}
+		}
+		receivers.pop();
 	}
+
 	return (0);
+}
+
+int Server::privmsg(User &user, Input &input)
+{
+	return sendPM(user, input, 0);
+}
+
+int Server::notice(User &user, Input &input)
+{
+	return sendPM(user, input, 1);
 }

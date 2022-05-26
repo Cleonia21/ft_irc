@@ -39,6 +39,12 @@ void User::processMessage(void)
 		messages = split(data, '\n');
 }
 
+void User::sendMessage(const std::string message) const
+{
+	if (message.size() > 0)
+		send(_socketfd, message.c_str(), message.size(), 0);
+}
+
 std::queue<std::string> User::split(std::string &data, char separator)
 {
 	std::queue<std::string> new_messages;
@@ -59,6 +65,24 @@ std::queue<std::string> User::split(std::string &data, char separator)
 	return new_messages;
 }
 
+std::queue<std::string> User::split(const std::string &data, char separator, int no_separator)
+{
+	std::queue<std::string> new_messages;
+	std::string::const_iterator i = data.begin();
+	while (i != data.end())
+	{
+		while (i != data.end() && *i == separator) //walk through separator
+			i++;
+		if (i == data.end())
+			break ;
+		std::string::const_iterator j = std::find(i, data.end(), separator); //find separator in data
+		new_messages.push(std::string(i, j));
+		i = j;
+	}
+	return new_messages;
+
+}
+
 std::string User::getNextMessage(void)
 {
 	std::string msg(messages.front().begin(), messages.front().end() - 1);
@@ -76,19 +100,25 @@ std::string User::getRealName( void ) const { return (_realName); }
 unsigned char User::getFlags( void ) const { return this->_flags; }
 std::queue<std::string> User::getMessages( void ) const { return this->messages; }
 int User::getSocketfd( void ) const { return this->_socketfd; }
+std::vector<const Channel *> User::getChannels() const { return _channels; }
+std::string User::getMask( void ) const
+{
+	return (std::string(_nick + "!" + _userName + "@" + _hostName));
+}
 
 void User::setPassword( std::string password ) { _password = password; }
 void User::setNick( std::string nick ) { _nick = nick; }
 void User::setHostName( std::string hostName ) { _hostName = hostName; }
 void User::setUserName( std::string userName) { _userName = userName; }
 void User::setRealName( std::string realName) { _realName = realName; }
+
+
 void User::setFlags(unsigned char user_state_enum)
 {
 	// '|=' - set bit to needed value
 	this->_flags |= user_state_enum;
 }
 
-std::vector<const Channel *> User::getChannels() const { return _channels; }
 
 void User::clearFlags(unsigned char user_state_enum)
 {

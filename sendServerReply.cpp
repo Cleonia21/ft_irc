@@ -4,10 +4,13 @@
 // code - номер ответа/ошибки (доступные находятся в irc.hpp)
 // arg* - необходимые аргументы для ответа/ошибки
 int sendServerReply (const User &user, int code,
-		const std::string &arg1, const std::string &arg2, const std::string &arg3)
+		const std::string &arg1, const std::string &arg2,
+		const std::string &arg3, const std::string &arg4)
 {
 	std::stringstream stream;
 	std::string reply;
+	if (code < 10)
+		stream << 0 << 0;
 	stream << code;
 	// 'reply' example: ":IRCSERVER 372 Bob "
 	reply = ":" + std::string(ircName) + " " + stream.str() + " " + user.getNick() + " ";
@@ -110,6 +113,20 @@ int sendServerReply (const User &user, int code,
 		 */
 
 
+			
+		case RPL_WELCOME:
+			//"Welcome to the Internet Relay Network <nick>!<user>@<host>"
+			reply += "Welcome to the Internet Relay Network " + arg1 + "!" + arg2 + "@" + arg3 + "\n";
+			break;
+		case RPL_YOURHOST:
+			reply += "Your host is " + arg1 + ", running version " + arg2 + "\n";
+			break;
+		case RPL_CREATED:
+			reply += "This server was created " + arg1 + "\n";
+			break;
+		case RPL_MYINFO:
+			reply += arg1 + " " + arg2 + " " + arg3 + " " + arg4 + "\n";
+			break;
 		case RPL_ISON:
 			reply += ":" + arg1 + "\n";
 			break;
@@ -150,6 +167,12 @@ int sendServerReply (const User &user, int code,
 		case RPL_LUSERME:
 			reply += ":I have " + arg1 + " clients and " + arg2 + " servers\n";
 			break;
+        case RPL_NAMREPLY:
+            reply += arg1 + " :" + arg2 + "\n";
+            break;
+        case RPL_ENDOFNAMES:
+            reply += arg1 + " :End of /NAMES list\n";
+            break;
 		default:
 			reply += "UNKNOWN REPLY\n";
 			break;

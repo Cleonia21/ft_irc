@@ -8,9 +8,12 @@ Server::Server(std::string server_port, std::string server_password) :
 	_commands["NICK"] = &Server::nick;
 	_commands["USER"] = &Server::user;
 	_commands["MODE"] = &Server::mode;
-	_commands["JOIN"] = &Server::join;
-	_commands["KICK"] = &Server::kick;
-	_motd = "Welcome to IRCserv!";
+	_commands["PRIVMSG"] = &Server::privmsg;
+	_commands["NOTICE"] = &Server::notice;
+    _commands["USER"] = &Server::join;
+    _commands["MODE"] = &Server::kick;
+	_motd.push_back("Welcome to IRCserv!");
+	_motd.push_back("Be good!");
 	memset(&hints, 0, sizeof(hints)); //making sure addrinfo is empty
 }
 
@@ -180,7 +183,7 @@ void Server::execution(User &user)
 				sendServerReply(user, ERR_UNKNOWNCOMMAND, cmd.getCommand());
 			else
 			{
-				int ret = (this->*_iter->second)(*this->_users[0], cmd); //запускаем команду
+				int ret = (this->*_iter->second)(user, cmd); //запускаем команду
 				if (ret == SERVER_DISCONNECT)
 				{
 					user.setFlags(USER_DISCONNECTED);
@@ -231,6 +234,17 @@ bool Server::containsNickname(const std::string &nick) const
 	for (size_t i = 0; i < count; i++)
 		if (_users[i]->getNick() == nick)
 			return (true);
+	return (false);
+}
+
+bool Server::containsChannel(const std::string &channel) const
+{
+	try
+	{
+		_channels.at(channel);
+		return (true);
+	}
+	catch (std::exception &e) {}
 	return (false);
 }
 
