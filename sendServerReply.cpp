@@ -167,6 +167,12 @@ int sendServerReply (const User &user, int code,
 		case RPL_LUSERME:
 			reply += ":I have " + arg1 + " clients and " + arg2 + " servers\n";
 			break;
+        case RPL_NAMREPLY:
+            reply += arg1 + " :" + arg2 + "\n";
+            break;
+        case RPL_ENDOFNAMES:
+            reply += arg1 + " :End of /NAMES list\n";
+            break;
 		default:
 			reply += "UNKNOWN REPLY\n";
 			break;

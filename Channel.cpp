@@ -1,12 +1,44 @@
 #include "Channel.hpp"
 
 Channel::Channel(const std::string& name, const User& creator, const std::string& password)
-: name(name), password(password), limit(0), flags(CHL_NOMSGOUT) {
+: _name(name), _password(password), _limit(0), _flags(CHL_NOMSGOUT) {
 
-    usersList.push_back(&creator);
-    operatorsList.push_back(&creator);
-    //sendInfo(creator);
+    _usersList.push_back(&creator);
+    _operatorsList.push_back(&creator);
+
+    creator.sendMessage(":" + creator.getNick() + " " + "JOIN :" + _name + "\n");
+    sendTopic(creator);
+    sendChannelUsers(creator);
 }
+
+void Channel::sendTopic(const User &user) {
+
+    if (_topic.empty())
+        sendServerReply(user, RPL_NOTOPIC, _name);
+    else
+        sendServerReply(user, RPL_TOPIC, _name, _topic);
+}
+
+void	Channel::sendChannelUsers(const User &user) {
+
+    std::string	usersList;
+    std::vector<const User *>::const_iterator	itb = _usersList.begin();
+    std::vector<const User *>::const_iterator	ite = _usersList.end();
+    while (itb != ite)
+    {
+        const User	*tmp = *itb;
+        if (isOperator(*tmp))
+            usersList += "@";
+        else if (isChannelUser((*tmp).getNick()))
+            usersList += "+";
+        usersList += tmp->getNick();
+        ++itb;
+        if (itb != ite)
+            usersList += " ";
+    }
+    sendServerReply(user, RPL_NAMREPLY, _name, usersList);
+}
+
 
 Channel::~Channel() {};
 
@@ -25,20 +57,20 @@ bool Channel::isChannelNameCorrect(const std::string &name) {
 }
 
 int	Channel::connect(const User &user, const std::string &key) {
-    if ((flags & CHL_PRIVATE) && key != password)
+    if ((_flags & CHL_PRIVATE) && key != _password)
         return ERR_BADCHANNELKEY;
-    else if ((flags & CHL_INVITEONLY) && !isInvited(user))
+    else if ((_flags & CHL_INVITEONLY) && !isInvited(user))
         return ERR_INVITEONLYCHAN;
     else {
-        for (int i = 0; i < banList.size(); i++)
+        for (int i = 0; i < _banList.size(); i++)
             if (isBanned(user))
                 return ERR_BANNEDFROMCHAN;
 
-        std::vector<const User *>::iterator	begin = usersList.begin();
-        std::vector<const User *>::iterator	end = usersList.end();
+        std::vector<const User *>::iterator	begin = _usersList.begin();
+        std::vector<const User *>::iterator	end = _usersList.end();
         for (; begin != end; ++begin) {
-            if ((*begin)->getRealName() != user.getRealName()) {
-                usersList.push_back(&user);
+            if ((*begin)->getNick() != user.getNick()) {
+                _usersList.push_back(&user);
                 //removeInvited(user);
                 //sendInfo(user);
             }
@@ -49,43 +81,43 @@ int	Channel::connect(const User &user, const std::string &key) {
 
 bool Channel::isInvited(const User &user) const {
 
-    for (int i = 0; i < inviteesList.size(); i++)
-        if (inviteesList[i]->getRealName() == user.getRealName())
+    for (int i = 0; i < _inviteesList.size(); i++)
+        if (_inviteesList[i]->getNick() == user.getNick())
             return true;
     return false;
 }
 
 bool Channel::isBanned(const User &user) const {
 
-    for (int i = 0; i < banList.size(); i++ )
-        if (banList[i]->getRealName() == user.getRealName() )
+    for (int i = 0; i < _banList.size(); i++ )
+        if (_banList[i]->getNick() == user.getNick() )
             return true;
     return false;
 }
 
 bool Channel::isOperator(const User &user) const {
-    for (int i = 0; i < operatorsList.size(); i++ )
-        if (operatorsList[i]->getRealName() == user.getRealName() )
+    for (int i = 0; i < _operatorsList.size(); i++ )
+        if (_operatorsList[i]->getNick() == user.getNick() )
             return true;
     return false;
 }
 
 bool Channel::isChannelUser(const std::string &nick) const {
-    for (int i = 0; i < usersList.size(); i++ )
-        if (usersList[i]->getNick() == nick)
+    for (int i = 0; i < _usersList.size(); i++ )
+        if (_usersList[i]->getNick() == nick)
             return true;
     return false;
 }
 
-const std::string& Channel::getName() const { return name; }
+const std::string& Channel::getName() const { return _name; }
 
 
 void	Channel::sendMsg(const std::string &msg, const User &from, bool includeUser) const
 {
 	std::string message;
 	message += ":" + from.getNick() + " " + msg;
-	std::vector<const User *>::const_iterator	begin = usersList.begin();
-	std::vector<const User *>::const_iterator	end = usersList.end();
+	std::vector<const User *>::const_iterator	begin = _usersList.begin();
+	std::vector<const User *>::const_iterator	end = _usersList.end();
 	for (; begin != end; ++begin)
 	{
 		if (includeUser || *begin != &from)
@@ -95,12 +127,12 @@ void	Channel::sendMsg(const std::string &msg, const User &from, bool includeUser
 
 void Channel::disconnect(const User &user) {
 
-    std::vector<const User *>::iterator	begin = usersList.begin();
-    std::vector<const User *>::iterator	end = usersList.end();
+    std::vector<const User *>::iterator	begin = _usersList.begin();
+    std::vector<const User *>::iterator	end = _usersList.end();
     for (; begin != end; ++begin)
         if (*begin == &user)
             break ;
-    usersList.erase(begin);
+    _usersList.erase(begin);
     deleteOperator(user);
     deleteUser(user);
 }
@@ -110,15 +142,15 @@ void Channel::deleteOperator(const User &user) {
     if (isOperator(user))
     {
         size_t	i;
-        for (i = 0; i < operatorsList.size(); i++)
-            if (operatorsList[i] == &user)
+        for (i = 0; i < _operatorsList.size(); i++)
+            if (_operatorsList[i] == &user)
                 break;
-        operatorsList.erase(operatorsList.begin() + i);
-        if (operatorsList.size() == 0 && usersList.size() > 0)
+        _operatorsList.erase(_operatorsList.begin() + i);
+        if (_operatorsList.size() == 0 && _usersList.size() > 0)
         {
-            operatorsList.push_back(usersList[0]);
+            _operatorsList.push_back(_usersList[0]);
             //sendMessage("MODE " + this->name + " +o "  + usersList[0]->getNick() + "\n", user, true);
-            std::cout << "MODE " + this->name + " +o "  + usersList[0]->getNick() + "\n";
+            std::cout << "MODE " + this->_name + " +o "  + _usersList[0]->getNick() + "\n";
         }
     }
 }
@@ -128,7 +160,7 @@ void    Channel::addOperator(const User &user) {
 }
 
 void    Channel::setLimit(int limit) {
-    this->limit = limit;
+    this->_limit = limit;
 }
 
 void	Channel::addBanMask(const std::string &mask) {
@@ -151,24 +183,24 @@ void Channel::deleteUser(const User &user) {
     if (isChannelUser(user.getNick()))
     {
         int	i;
-        for (i = 0; i < usersList.size(); i++)
-            if (usersList[i] == &user)
+        for (i = 0; i < _usersList.size(); i++)
+            if (_usersList[i] == &user)
                 break;
-        usersList.erase(usersList.begin() + i);
+        _usersList.erase(_usersList.begin() + i);
     }
 }
 
 unsigned char Channel::getFlags(void) const
 {
-	return (flags);
+	return (_flags);
 }
 
 void	Channel::setFlag(unsigned char flag)
 {
-    this->flags |= flag;
+    this->_flags |= flag;
 }
 
 void	Channel::clearFlag(unsigned char flag)
 {
-    this->flags &= ~flag;
+    this->_flags &= ~flag;
 }

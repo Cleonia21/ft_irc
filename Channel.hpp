@@ -19,15 +19,15 @@ class User;
 class Channel
 {
 	private:
-		std::string					name;
-		std::vector<const User *>	usersList;
-		std::vector<const User *>	operatorsList;
-		unsigned char			    flags;
-		std::string					password;
-		int		            	    limit;
-		std::vector<const User *>	banList;
-		std::string					topic;
-		std::vector<const User *>	inviteesList;
+		std::string					_name;
+		std::vector<const User *>	_usersList;
+		std::vector<const User *>	_operatorsList;
+		unsigned char			    _flags;
+		std::string					_password;
+		int		            	    _limit;
+		std::vector<const User *>	_banList;
+		std::string					_topic;
+		std::vector<const User *>	_inviteesList;
 
 	public:
 		Channel(const std::string& name, const User& creator, const std::string& password = "");
@@ -52,6 +52,8 @@ class Channel
 		void				removeBanMask(const std::string &mask);
 		void				setPass(const std::string);
 		void				removePass(void);
+        void				sendChannelUsers(const User &user);
+        void				sendTopic(const User &user);
 
 		unsigned char					getFlags() const;
 
@@ -74,8 +76,6 @@ class Channel
 		void							removeSpeaker(const User &user);
 		void							addBanMask(const std::string &mask);
 		void							removeBanMask(const std::string &mask);
-		void							displayTopic(const User &user);
-		void							displayNames(const User &user);
 		void							disconnect(const User &user);
 		void							removeInvited(const User &user);
 		void							displayChanInfo(const User &user);
