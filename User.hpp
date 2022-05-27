@@ -44,6 +44,8 @@ class User
 		std::string getNextMessage( void );
         void addNewChannel(const Channel& channel);
 		void sendMessage(const std::string message) const;
+        void leaveChannel(const std::string& channelName);
+
 
 		void setPassword( std::string );
 		void setNick( std::string );
@@ -65,6 +67,7 @@ class User
 		int getSocketfd( void ) const;
 
 		bool operator==(const User &a);
+        bool isChannelMember(const std::string& channelNameToFind) const;
 
         //functions
         //сделал статик, чтобы можно было пользоваться откуда угодно, функция будет часто нужна

@@ -373,3 +373,45 @@ int Server::notice(User &user, Input &input)
 {
 	return sendPM(user, input, 1);
 }
+
+int Server::topic(User &user, Input &input) {
+
+    if (input.getParams().size() < 1)
+        sendServerReply(user, ERR_NEEDMOREPARAMS, "TOPIC");
+    else if (!containsChannel(input.getParams()[0]))
+        sendServerReply(user, ERR_NOTONCHANNEL, input.getParams()[0]);
+    else {
+        Channel	*c = _channels.at(input.getParams()[0]);
+        if (!c->isChannelUser(user.getNick()))
+            sendServerReply(user, ERR_NOTONCHANNEL, input.getParams()[0]);
+        else if (input.getParams().size() < 2)
+            c->sendTopic(user);
+        else
+            c->setTopic(user, input.getParams()[1]);
+    }
+    return 0;
+}
+
+int Server::part(User &user, Input &input) {
+
+    if (input.getParams().size() < 1)
+        sendServerReply(user, ERR_NEEDMOREPARAMS, "PART");
+    else {
+
+        std::queue<std::string>	channels = User::split(input.getParams()[0], ',', false);
+        while (!channels.empty()) {
+
+            if (!containsChannel(channels.front()))
+                sendServerReply(user, ERR_NOSUCHCHANNEL, channels.front());
+            else if (!user.isChannelMember(channels.front()))
+                sendServerReply(user, ERR_NOTONCHANNEL, channels.front());
+            else {
+                _channels.at(channels.front())->sendNotification("PART " + channels.front() + "\n", user);
+                _channels.at(channels.front())->disconnect(user);
+                user.leaveChannel(channels.front());
+            }
+            channels.pop();
+        }
+    }
+    return 0;
+}

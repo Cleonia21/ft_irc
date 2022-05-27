@@ -65,6 +65,8 @@ class Server
 		int mode(User &user, Input &input);
 		int privmsg(User &user, Input &input);
 		int notice(User &user, Input &input);
+        int topic(User &user, Input &input);
+        int part(User &user, Input &input);
 
 		bool printer(Input &input);
 

@@ -141,3 +141,20 @@ bool User::operator==(const User &a)
 }
 
 void User::addNewChannel(const Channel &channel) { _channels.push_back(&channel); }
+
+
+bool User::isChannelMember(const std::string& channelNameToFind) const {
+
+    for (int i = 0; i < _channels.size(); i++)
+        if (_channels[i]->getName() == channelNameToFind)
+            return true;
+    return false;
+}
+
+void User::leaveChannel(const std::string &channelName) {
+
+    // проверьете сначала isChannelMember, если будете пользоваться
+    for (int i = 0; i < _channels.size(); i++)
+        if (_channels[i]->getName() == channelName)
+            _channels.erase(std::next(_channels.begin(),i));
+}

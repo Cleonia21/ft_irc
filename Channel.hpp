@@ -39,7 +39,6 @@ class Channel
 		bool		        isOperator(const User &user) const;
 		bool		        isChannelUser(const std::string &nick) const;
 		const std::string   &getName() const;
-		void				sendMsg(const std::string &msg, const User &from, bool includeUser) const;
 		void				disconnect(const User &user);
 		void				deleteOperator(const User &user);
 		void				deleteUser(const User &user);
@@ -55,7 +54,8 @@ class Channel
         void				sendChannelUsers(const User &user);
         void				sendTopic(const User &user);
         void                sendJoinSuccessResponce(const User &user);
-		unsigned char					getFlags() const;
+		unsigned char		getFlags() const;
+        void				setTopic(const User &user, const std::string &topic);
 
 		//служебные для вывода
 		std::vector<const User *> getUsers() const;
@@ -66,7 +66,6 @@ class Channel
 		/*
 		const std::string				&getName() const;
 		const std::string				&getTopic() const;
-		void							setTopic(const User &user, const std::string &topic);
 		void							setKey(const User &user, const std::string &key);
 
 		bool							isOperator(const User &user) const;
