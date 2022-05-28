@@ -4,6 +4,7 @@ User::User(std::string hostName, int new_fd)
 	: _hostName(hostName), _socketfd(new_fd)
 {
 	_flags = 0;
+	this->setFlags(USER_GETNOTICE);
 }
 
 User::~User( void )
@@ -17,10 +18,10 @@ void User::processMessage(void)
 	char buffer[256];
 	int nbytes;
 
-	if (messages.size() != 0) //Grab remaining data from last recv call
+	if (_messages.size() != 0) //Grab remaining data from last recv call
 	{
 		std::cout << "check in" << std::endl;
-		data = messages.front();
+		data = _messages.front();
 	}
 	while ((nbytes = recv(_socketfd, buffer, sizeof(buffer), 0)) > 0)
 	{
@@ -36,7 +37,7 @@ void User::processMessage(void)
 	while (data.find("\r\n") != std::string::npos)
 		data.replace(data.find("\r\n"), 2, "\n");
 	if (data.size() > 1)
-		messages = split(data, '\n');
+		_messages = split(data, '\n');
 }
 
 void User::sendMessage(const std::string message) const
@@ -85,8 +86,8 @@ std::queue<std::string> User::split(const std::string &data, char separator, int
 
 std::string User::getNextMessage(void)
 {
-	std::string msg(messages.front().begin(), messages.front().end() - 1);
-	messages.pop();
+	std::string msg(_messages.front().begin(), _messages.front().end() - 1);
+	_messages.pop();
 
 	return msg;
 }
@@ -98,7 +99,7 @@ std::string User::getHostName( void ) const { return (_hostName); }
 std::string User::getUserName( void ) const { return (_userName); }
 std::string User::getRealName( void ) const { return (_realName); }
 unsigned char User::getFlags( void ) const { return this->_flags; }
-std::queue<std::string> User::getMessages( void ) const { return this->messages; }
+std::queue<std::string> User::getMessages( void ) const { return _messages; }
 int User::getSocketfd( void ) const { return this->_socketfd; }
 std::vector<const Channel *> User::getChannels() const { return _channels; }
 std::string User::getMask( void ) const

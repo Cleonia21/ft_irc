@@ -157,28 +157,33 @@ void Channel::deleteOperator(const User &user) {
     }
 }
 
-void    Channel::addOperator(const User &user) {
-
+void    Channel::addOperator(const User &user) 
+{
+	_operatorsList.push_back(&user);
 }
 
 void    Channel::setLimit(int limit) {
     this->_limit = limit;
 }
 
-void	Channel::addBanMask(const std::string &mask) {
+void	Channel::addInBan(const std::string &nick)
+{
+	
+}
+
+void	Channel::removeFromBan(const std::string &nick)
+{
 
 }
 
-void	Channel::removeBanMask(const std::string &mask) {
-
+void	Channel::setPass(const std::string pass)
+{
+	_password = pass;
 }
 
-void	Channel::setPass(const std::string) {
-
-}
-
-void    Channel::removePass( void ) {
-
+void    Channel::removePass( void )
+{
+	_password.clear();
 }
 
 void Channel::deleteUser(const User &user) {
@@ -206,18 +211,6 @@ void	Channel::clearFlag(unsigned char flag)
 {
     this->_flags &= ~flag;
 }
-
-/*
-		std::string					name;
-		std::vector<const User *>	usersList;
-		std::vector<const User *>	operatorsList;
-		unsigned char			    flags;
-		std::string					password;
-		int		            	    limit;
-		std::vector<const User *>	banList;
-		std::string					topic;
-		std::vector<const User *>	inviteesList;
-*/
 
 std::vector<const User *> Channel::getUsers() const { return (this->_usersList); }
 std::vector<const User *> Channel::getOperators() const { return (this->_operatorsList); }

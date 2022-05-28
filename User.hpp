@@ -12,7 +12,8 @@
 enum User_states
 {
 	USER_REGISTERED =	0b00000001,
-	USER_DISCONNECTED =	0b00000010
+	USER_DISCONNECTED =	0b00000010,
+	USER_GETNOTICE = 0b10000000
 };
 
 #define NO_SEPARATOR 0
@@ -29,7 +30,7 @@ class User
 		std::string		_password;
 		int				_socketfd;
 		unsigned char	_flags;
-		std::queue<std::string>		messages;
+		std::queue<std::string>		_messages;
         std::vector<const Channel *>  _channels;
 
 		//unused

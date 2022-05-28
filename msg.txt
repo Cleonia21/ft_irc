@@ -1,0 +1,16 @@
+
+PASS 1
+NICK Wiz
+USER a b c d e
+JOIN #a
+MODE #a +psitnm
+su channels
+MODE #a -psitnm
+su channels
+MODE #a +o empty
+MODE #a -o
+MODE #a +l 20
+MODE #a +k 123
+su channels
+
+

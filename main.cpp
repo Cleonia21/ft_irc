@@ -13,6 +13,33 @@ void stopLoop(int signum)
 	(void)signum;
 	activeLoop = 0;
 }
+/*
+bool checkFlagsForValid(std::string _flags)
+{
+	if ((_flags[0] != '+' && _flags[0] != '-')
+		|| _flags.size() > 7)
+		return false;
+	const char *flags = _flags.c_str() + 1; // пропускаем +-
+	const char *dict;
+	if (_flags.size() == 2)
+		dict = "opsitnmlbvk";
+	else
+		dict = "psitnm";
+	// проверка на отличные символы в flags от символов в dict
+	if (strspn(flags, dict) != _flags.size() - 1)
+		return false;
+	// проверка на повторы
+	for (; *dict; dict++)
+		if (_flags.find(*dict) != _flags.rfind(*dict))
+			return false;
+	return true;
+}
+
+int main()
+{
+	checkFlagsForValid("+o");
+}
+*/
 
 int main(int argc, char **argv)
 {

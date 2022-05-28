@@ -6,9 +6,8 @@ make all --print-data-base --no-builtin-variables --no-builtin-rules --question
 # PARTICULAR PURPOSE.
 
 # This program built for i386-apple-darwin11.3.0
- 
 
-# Make data base, printed on Thu May  5 11:32:03 2022
+# Make data base, printed on Fri May 27 12:06:31 2022
 
 # Variables
 
@@ -16,8 +15,6 @@ make all --print-data-base --no-builtin-variables --no-builtin-rules --question
 <D = $(patsubst %/,%,$(dir $<))
 # automatic
 ?F = $(notdir $?)
-# makefile (from `Makefile', line 6)
-OBJ = $(SRCS:.cpp=.o)
 # environment
 VSCODE_LOG_NATIVE = false
 # automatic
@@ -27,7 +24,7 @@ VSCODE_LOG_NATIVE = false
 # automatic
 @F = $(notdir $@)
 # makefile
-CURDIR := /Users/ChelseyLeonia/Desktop/circle_5/ft_irc/code
+CURDIR := /Users/ChelseyLeonia/Desktop/ft_irc
 # makefile
 SHELL = /bin/sh
 # environment
@@ -36,16 +33,18 @@ VSCODE_NLS_CONFIG = {"locale":"en-gb","availableLanguages":{},"_languagePackSupp
 _ = /usr/bin/make
 # makefile (from `Makefile', line 1)
 MAKEFILE_LIST :=  Makefile
+# makefile (from `Makefile', line 12)
+OBJ_DIR = objs
 # environment
 VSCODE_VERBOSE_LOGGING = true
+# makefile (from `Makefile', line 13)
+OBJS = $(addprefix $(OBJ_DIR)/, $(SRCS:.cpp=.o))
 # environment
-VSCODE_IPC_HOOK_EXTHOST = /var/folders/by/0dxdpnlj3q3_2qsjjscyy6k40000gn/T/vscode-ipc-711058a2-9dbf-4eb3-b79d-2034fa2d2ca4.sock
-# makefile (from `Makefile', line 4)
-CPP = c++ 
+VSCODE_IPC_HOOK_EXTHOST = /var/folders/by/0dxdpnlj3q3_2qsjjscyy6k40000gn/T/vscode-ipc-bd3fbfd6-b6f5-43f0-966d-d37d3768ebc6.sock
+# makefile (from `Makefile', line 3)
+CPP = c++ -g 
 # environment
 VSCODE_CWD = /
-# makefile (from `Makefile', line 3)
-HPP = irc.hpp Channel.hpp User.hpp
 # environment
 PATH = /usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/share/dotnet:~/.dotnet/tools:/Library/Apple/usr/bin:/Library/Frameworks/Mono.framework/Versions/Current/Commands
 # environment
@@ -63,7 +62,7 @@ SSH_AUTH_SOCK = /private/tmp/com.apple.launchd.QCYadywJXT/Listeners
 # environment
 VSCODE_PIPE_LOGGING = true
 # environment
-PWD = /Users/ChelseyLeonia/Desktop/circle_5/ft_irc/code
+PWD = /Users/ChelseyLeonia/Desktop/ft_irc
 # environment
 ORIGINAL_XDG_CURRENT_DESKTOP = undefined
 # environment
@@ -77,7 +76,7 @@ VSCODE_CODE_CACHE_PATH = /Users/ChelseyLeonia/Library/Application Support/Code/C
 # environment
 LOGNAME = ChelseyLeonia
 # environment
-APPLICATION_INSIGHTS_NO_DIAGNOSTIC_CHANNEL = true
+APPLICATION_INSIGHTS_NO_DIAGNOSTIC_CHANNEL = 1
 # environment
 ZSH = /Users/ChelseyLeonia/.oh-my-zsh
 # environment
@@ -90,8 +89,8 @@ XPC_FLAGS = 0x0
 MAKE = $(MAKE_COMMAND)
 # default
 MAKECMDGOALS := all
-# makefile (from `Makefile', line 5)
-SRCS = execution.cpp User.cpp parser.cpp main.cpp colorCout.cpp
+# makefile (from `Makefile', line 4)
+SRCS = Server.cpp Server_commands.cpp User.cpp Channel.cpp Input.cpp main.cpp colorCout.cpp sendServerReply.cpp
 # environment
 SHLVL = 1
 # default
@@ -100,8 +99,10 @@ MAKE_VERSION := 3.81
 USER = ChelseyLeonia
 # makefile
 .DEFAULT_GOAL := all
+# makefile (from `Makefile', line 2)
+INCLUDE = include/
 # makefile (from `Makefile', line 1)
-NAME = irc.out
+NAME = ircserv
 # environment
 LESS = -R
 # automatic
@@ -151,7 +152,7 @@ LANG = C
 # environment
 VSCODE_PID = 3299
 # variable set hash-table stats:
-# Load=69/1024=7%, Rehash=0, Collisions=3/98=3%
+# Load=70/1024=7%, Rehash=0, Collisions=4/102=4%
 
 # Pattern-specific Variable Values
 
@@ -159,24 +160,53 @@ VSCODE_PID = 3299
 
 # Directories
 
-# . (device 16777220, inode 12889780713): 18 files, no impossibilities.
+# . (device 16777220, inode 12891448417): 27 files, no impossibilities.
 
-# 18 files, no impossibilities in 1 directories.
+# 27 files, no impossibilities in 1 directories.
 
 # Implicit Rules
 
-%.o: %.cpp irc.hpp Channel.hpp User.hpp
-#  commands to execute (from `Makefile', line 11):
-	$(CPP) -c $< -o $@
+objs/%.o: %.cpp
+#  commands to execute (from `Makefile', line 21):
+	$(CPP) -c $< -o $@ #-I $(INCLUDE) enable later
 	
 
 # 1 implicit rules, 0 (0.0%) terminal.
 
 # Files
 
-all: irc.out
+# Not a target:
+Channel.cpp:
+#  Implicit rule search has been done.
+#  Last modified 2022-05-27 11:55:36
+#  File has been updated.
+#  Successfully updated.
+# variable set hash-table stats:
+# Load=0/32=0%, Rehash=0, Collisions=0/0=0%
+
+# Not a target:
+sendServerReply.cpp:
+#  Implicit rule search has been done.
+#  Last modified 2022-05-26 15:37:52
+#  File has been updated.
+#  Successfully updated.
+# variable set hash-table stats:
+# Load=0/32=0%, Rehash=0, Collisions=0/0=0%
+
+objs/main.o: main.cpp
+#  Implicit rule search has been done.
+#  Implicit/static pattern stem: `main'
+#  Last modified 2022-05-27 12:02:32
+#  File has been updated.
+#  Successfully updated.
+# variable set hash-table stats:
+# Load=0/32=0%, Rehash=0, Collisions=0/0=0%
+#  commands to execute (from `Makefile', line 21):
+	$(CPP) -c $< -o $@ #-I $(INCLUDE) enable later
+	
+
+all: ircserv
 #  Phony target (prerequisite of .PHONY).
- 
 #  Command-line target.
 #  Implicit rule search has not been done.
 #  File does not exist.
@@ -186,45 +216,42 @@ all: irc.out
 # Load=0/32=0%, Rehash=0, Collisions=0/0=0%
 
 # Not a target:
-irc.hpp:
+Input.cpp:
 #  Implicit rule search has been done.
-#  Last modified 2022-05-05 11:31:38
+#  Last modified 2022-05-10 19:20:11
 #  File has been updated.
 #  Successfully updated.
 # variable set hash-table stats:
 # Load=0/32=0%, Rehash=0, Collisions=0/0=0%
+
+objs/Channel.o: Channel.cpp
+#  Implicit rule search has been done.
+#  Implicit/static pattern stem: `Channel'
+#  Last modified 2022-05-27 12:02:31
+#  File has been updated.
+#  Successfully updated.
+# variable set hash-table stats:
+# Load=0/32=0%, Rehash=0, Collisions=0/0=0%
+#  commands to execute (from `Makefile', line 21):
+	$(CPP) -c $< -o $@ #-I $(INCLUDE) enable later
+	
 
 .PHONY: all clean fclean re
 #  Implicit rule search has not been done.
 #  Modification time never checked.
 #  File has not been updated.
 
-# Not a target:
-parser.cpp:
+objs/sendServerReply.o: sendServerReply.cpp
 #  Implicit rule search has been done.
-#  Last modified 2022-05-05 05:45:36
+#  Implicit/static pattern stem: `sendServerReply'
+#  Last modified 2022-05-26 17:48:27
 #  File has been updated.
 #  Successfully updated.
 # variable set hash-table stats:
 # Load=0/32=0%, Rehash=0, Collisions=0/0=0%
-
-# Not a target:
-Channel.hpp:
-#  Implicit rule search has been done.
-#  Last modified 2022-05-05 06:12:54
-#  File has been updated.
-#  Successfully updated.
-# variable set hash-table stats:
-# Load=0/32=0%, Rehash=0, Collisions=0/0=0%
-
-# Not a target:
-MAKEFILE:
-#  Implicit rule search has been done.
-#  Last modified 2022-05-05 11:31:53
-#  File has been updated.
-#  Successfully updated.
-# variable set hash-table stats:
-# Load=0/32=0%, Rehash=0, Collisions=0/0=0%
+#  commands to execute (from `Makefile', line 21):
+	$(CPP) -c $< -o $@ #-I $(INCLUDE) enable later
+	
 
 # Not a target:
 .SUFFIXES:
@@ -235,7 +262,7 @@ MAKEFILE:
 # Not a target:
 Makefile:
 #  Implicit rule search has been done.
-#  Last modified 2022-05-05 11:31:53
+#  Last modified 2022-05-24 15:52:52
 #  File has been updated.
 #  Successfully updated.
 # variable set hash-table stats:
@@ -244,7 +271,40 @@ Makefile:
 # Not a target:
 colorCout.cpp:
 #  Implicit rule search has been done.
-#  Last modified 2022-05-05 11:31:32
+#  Last modified 2022-05-10 16:22:36
+#  File has been updated.
+#  Successfully updated.
+# variable set hash-table stats:
+# Load=0/32=0%, Rehash=0, Collisions=0/0=0%
+
+ircserv: objs objs/Server.o objs/Server_commands.o objs/User.o objs/Channel.o objs/Input.o objs/main.o objs/colorCout.o objs/sendServerReply.o
+#  Implicit rule search has not been done.
+#  Last modified 2022-05-27 12:02:32
+#  File has been updated.
+#  Successfully updated.
+# variable set hash-table stats:
+# Load=0/32=0%, Rehash=0, Collisions=0/0=0%
+#  commands to execute (from `Makefile', line 24):
+	$(CPP) $(OBJS) -o $(NAME)
+	
+
+objs/Input.o: Input.cpp
+#  Implicit rule search has been done.
+#  Implicit/static pattern stem: `Input'
+#  Last modified 2022-05-26 17:48:24
+#  File has been updated.
+#  Successfully updated.
+# variable set hash-table stats:
+# Load=0/32=0%, Rehash=0, Collisions=0/0=0%
+#  commands to execute (from `Makefile', line 21):
+	$(CPP) -c $< -o $@ #-I $(INCLUDE) enable later
+	
+
+# Not a target:
+ 
+Server_commands.cpp:
+#  Implicit rule search has been done.
+#  Last modified 2022-05-27 12:02:25
 #  File has been updated.
 #  Successfully updated.
 # variable set hash-table stats:
@@ -253,58 +313,64 @@ colorCout.cpp:
 # Not a target:
 User.cpp:
 #  Implicit rule search has been done.
-#  Last modified 2022-05-05 11:28:49
+#  Last modified 2022-05-26 15:37:52
 #  File has been updated.
 #  Successfully updated.
 # variable set hash-table stats:
 # Load=0/32=0%, Rehash=0, Collisions=0/0=0%
 
-# Not a target:
-execution.cpp:
+objs/colorCout.o: colorCout.cpp
 #  Implicit rule search has been done.
-#  Last modified 2022-05-05 05:45:08
+#  Implicit/static pattern stem: `colorCout'
+#  Last modified 2022-05-26 17:48:26
 #  File has been updated.
 #  Successfully updated.
 # variable set hash-table stats:
 # Load=0/32=0%, Rehash=0, Collisions=0/0=0%
+#  commands to execute (from `Makefile', line 21):
+	$(CPP) -c $< -o $@ #-I $(INCLUDE) enable later
+	
 
-# Not a target:
-main.cpp:
-#  Implicit rule search has been done.
-#  Last modified 2022-05-05 11:29:10
+objs:
+#  Implicit rule search has not been done.
+#  Last modified 2022-05-27 12:02:32
 #  File has been updated.
 #  Successfully updated.
-# variable set hash-table stats:
-# Load=0/32=0%, Rehash=0, Collisions=0/0=0%
+#  commands to execute (from `Makefile', line 18):
+	mkdir -p $@
+	
 
-# Not a target:
-User.hpp:
+objs/Server_commands.o: Server_commands.cpp
 #  Implicit rule search has been done.
-#  Last modified 2022-05-05 11:22:29
+#  Implicit/static pattern stem: `Server_commands'
+#  Last modified 2022-05-27 12:02:30
 #  File has been updated.
 #  Successfully updated.
 # variable set hash-table stats:
 # Load=0/32=0%, Rehash=0, Collisions=0/0=0%
+#  commands to execute (from `Makefile', line 21):
+	$(CPP) -c $< -o $@ #-I $(INCLUDE) enable later
+	
 
 fclean: clean
 #  Phony target (prerequisite of .PHONY).
 #  Implicit rule search has not been done.
 #  File does not exist.
 #  File has not been updated.
-#  commands to execute (from `Makefile', line 20):
+#  commands to execute (from `Makefile', line 30):
 	rm -f $(NAME)
 	
 
-parser.o: parser.cpp irc.hpp Channel.hpp User.hpp
+objs/User.o: User.cpp
 #  Implicit rule search has been done.
-#  Implicit/static pattern stem: `parser'
-#  Last modified 2022-05-05 11:31:56
+#  Implicit/static pattern stem: `User'
+#  Last modified 2022-05-26 17:48:22
 #  File has been updated.
 #  Successfully updated.
 # variable set hash-table stats:
 # Load=0/32=0%, Rehash=0, Collisions=0/0=0%
-#  commands to execute (from `Makefile', line 11):
-	$(CPP) -c $< -o $@
+#  commands to execute (from `Makefile', line 21):
+	$(CPP) -c $< -o $@ #-I $(INCLUDE) enable later
 	
 
 # Not a target:
@@ -324,71 +390,42 @@ clean:
 #  Implicit rule search has not been done.
 #  File does not exist.
 #  File has not been updated.
-#  commands to execute (from `Makefile', line 17):
-	rm -f $(OBJ)
+#  commands to execute (from `Makefile', line 27):
+	rm -rf $(OBJ_DIR)
 	
 
-irc.out: execution.o User.o parser.o main.o colorCout.o MAKEFILE
-#  Implicit rule search has not been done.
-#  Last modified 2022-05-05 11:31:57
-#  File has been updated.
-#  Successfully updated.
-# variable set hash-table stats:
-# Load=0/32=0%, Rehash=0, Collisions=0/0=0%
-#  commands to execute (from `Makefile', line 14):
-	$(CPP) $(OBJ) -o $(NAME)
-	
-
-colorCout.o: colorCout.cpp irc.hpp Channel.hpp User.hpp
+# Not a target:
+Server.cpp:
 #  Implicit rule search has been done.
-#  Implicit/static pattern stem: `colorCout'
-#  Last modified 2022-05-05 11:31:57
+#  Last modified 2022-05-26 17:52:09
 #  File has been updated.
 #  Successfully updated.
 # variable set hash-table stats:
 # Load=0/32=0%, Rehash=0, Collisions=0/0=0%
-#  commands to execute (from `Makefile', line 11):
-	$(CPP) -c $< -o $@
-	
 
-User.o: User.cpp irc.hpp Channel.hpp User.hpp
+# Not a target:
+main.cpp:
 #  Implicit rule search has been done.
-#  Implicit/static pattern stem: `User'
-#  Last modified 2022-05-05 11:31:55
+#  Last modified 2022-05-27 12:02:21
 #  File has been updated.
 #  Successfully updated.
 # variable set hash-table stats:
 # Load=0/32=0%, Rehash=0, Collisions=0/0=0%
-#  commands to execute (from `Makefile', line 11):
-	$(CPP) -c $< -o $@
-	
 
-execution.o: execution.cpp irc.hpp Channel.hpp User.hpp
+objs/Server.o: Server.cpp
 #  Implicit rule search has been done.
-#  Implicit/static pattern stem: `execution'
-#  Last modified 2022-05-05 11:31:54
+#  Implicit/static pattern stem: `Server'
+#  Last modified 2022-05-26 17:52:12
 #  File has been updated.
 #  Successfully updated.
 # variable set hash-table stats:
 # Load=0/32=0%, Rehash=0, Collisions=0/0=0%
-#  commands to execute (from `Makefile', line 11):
-	$(CPP) -c $< -o $@
-	
-
-main.o: main.cpp irc.hpp Channel.hpp User.hpp
-#  Implicit rule search has been done.
-#  Implicit/static pattern stem: `main'
-#  Last modified 2022-05-05 11:31:57
-#  File has been updated.
-#  Successfully updated.
-# variable set hash-table stats:
-# Load=0/32=0%, Rehash=0, Collisions=0/0=0%
-#  commands to execute (from `Makefile', line 11):
-	$(CPP) -c $< -o $@
+#  commands to execute (from `Makefile', line 21):
+	$(CPP) -c $< -o $@ #-I $(INCLUDE) enable later
 	
 
 # files hash-table stats:
-# Load=23/1024=2%, Rehash=0, Collisions=0/95=0%
+# Load=26/1024=3%, Rehash=0, Collisions=3/80=4%
 # VPATH Search Paths
 
 # No `vpath' search paths.
@@ -400,6 +437,6 @@ main.o: main.cpp irc.hpp Channel.hpp User.hpp
 # strcache size: total = 4096 / max = 4096 / min = 4096 / avg = 4096
 # strcache free: total = 4087 / max = 4087 / min = 4087 / avg = 4087
 
-# Finished Make data base on Thu May  5 11:32:03 2022
+# Finished Make data base on Fri May 27 12:06:31 2022
 
  

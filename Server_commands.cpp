@@ -176,7 +176,7 @@ bool checkFlagsForValid(std::string _flags)
 		return false;
 	const char *flags = _flags.c_str() + 1; // пропускаем +-
 	const char *dict;
-	if (_flags.size() == 1)
+	if (_flags.size() == 2)
 		dict = "opsitnmlbvk";
 	else
 		dict = "psitnm";
@@ -209,8 +209,7 @@ int Server::mode(User &user, Input &input)
 
 		for (int i = 1; flags[i] != '\0'; i++)
 		{
-			unsigned char flag;
-			std::string argument;
+			unsigned char flag = 0;
 			switch (flags[i])
 			{
 			case 'p':
@@ -231,58 +230,56 @@ int Server::mode(User &user, Input &input)
 			case 'm':
 				flag = CHL_MODERATED;
 				break;
-			if (input.getParams().size() != 3)
+			}
+			if (flag != 0 && flags[0] == '-')
+				channel->clearFlag(flag);
+			else if (flag != 0)
+				channel->setFlag(flag);
+
+			if (flag == 0 && input.getParams().size() != 3)
 				return sendServerReply(user, ERR_NEEDMOREPARAMS, input.getCommand());
-			argument = input.getParams()[2];
-			User *tmpUser;
-			case 'o':
-				tmpUser = this->searchUser(SRCH_NICK, argument);
+
+			std::string argument = input.getParams()[2];
+			if (flags[i] == 'o')
+			{
+				User *tmpUser = this->searchUser(SRCH_NICK, argument);
 				if (!tmpUser)
 					return sendServerReply(user, ERR_NOSUCHNICK, argument);
 				if (flags[0] == '-')
 					channel->deleteOperator(*tmpUser);
 				else
 					channel->addOperator(*tmpUser);
-				continue;
-			case 'l':
+			}
+			if (flags[i] == 'l')
 				channel->setLimit(std::stoi(argument));
-				continue;
-			case 'b':
+			if (flags[i] == 'b')
+			{
 				if (flags[0] == '-')
-					channel->addBanMask(argument);
+					channel->addInBan(argument);
 				else
-					channel->removeBanMask(argument);
-			case 'v':
+					channel->removeFromBan(argument);
+			}
+			if (flags[i] == 'v')
+			{
+				flags[i] = 'v';
 				// realization
-				continue;
-			case 'k':
-				if (flags[0] == '-')
+			}
+			if (flags[i] == 'k')
+			{
+				if (flags[0] == '+')
 					channel->setPass(argument);
 				else
 					channel->removePass();
 			}
-			if (flags[0] == '-')
-				channel->clearFlag(flag);
-			else
-				channel->setFlag(flag);
 		}
 	}
+	else
+	{
+
+	}
+	
 	return (0);
 }
-
-/*
-o – брать/давать привилегии операторов канала
-p – флаг приватности канала;
-s – флаг секретности канала;
-i – флаг канала invite-only;
-t – при установке этого флага, менять топик могут только операторы;
-n – запрещает сообщения на канал от посторонних клиентов;
-m – модерируемый канал;
-l – установка ограничения на количество пользователей;
-b – установка маски бана;
-v – брать/давать возможность голоса при модерируемом режиме;
-k – установка пароля на канал.
-*/
 
 static int pm_or_notice(User &user, Input &input, int code, int silent)
 {
@@ -371,5 +368,7 @@ int Server::privmsg(User &user, Input &input)
 
 int Server::notice(User &user, Input &input)
 {
-	return sendPM(user, input, 1);
+	if (user.getFlags() & USER_GETNOTICE)
+		return sendPM(user, input, 1);
+	return (0);
 }
