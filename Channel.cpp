@@ -139,6 +139,17 @@ void Channel::disconnect(const User &user) {
     deleteUser(user);
 }
 
+void Channel::setTopic(const User &user, const std::string &topic) {
+
+    if ((_flags & CHL_TOPICSET) && !isOperator(user))
+        sendServerReply(user, ERR_CHANOPRIVSNEEDED, _name);
+    else
+    {
+        this->_topic = topic;
+        sendNotification("TOPIC " + _name + " :" + this->_topic + "\n", user);
+    }
+}
+
 void Channel::deleteOperator(const User &user) {
 
     if (isOperator(user))
