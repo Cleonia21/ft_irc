@@ -41,6 +41,8 @@ class Server
 		std::vector<struct pollfd>					pollfds;
 
 		//utility functions
+		void execution(User &user);
+		void disconnectUser(User &user);
 		bool isNickValid(std::string &nick) const;
 		bool containsNickname(const std::string &nick) const;
 		bool containsChannel(const std::string &channel) const;
@@ -69,6 +71,9 @@ class Server
         int topic(User &user, Input &input);
         int part(User &user, Input &input);
 		int oper(User &user, Input &input);
+        int names(User &user, Input &input);
+        int list(User &user, Input &input);
+        int quit(User &user, Input &input);
 
 		bool printer(Input &input);
 
@@ -83,7 +88,6 @@ class Server
 		~Server(void);
 		void socketManagement(void);
 		void acceptConnection(void);
-		void disconnectUsers(void);
+		void clearEmptyChannels(void);
 
-		void execution(User &user);
 };

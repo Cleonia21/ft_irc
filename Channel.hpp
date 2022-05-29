@@ -2,6 +2,7 @@
 
 #include <vector>
 #include <string>
+#include <set>
 #include "irc.hpp"
 #include "User.hpp"
 
@@ -38,6 +39,7 @@ class Channel
 		bool	        	isBanned(const User &user) const;
 		bool		        isOperator(const User &user) const;
 		bool		        isChannelUser(const std::string &nick) const;
+		bool				isEmpty(void) const; //If channel is empty of users or not
 		const std::string   &getName() const;
 		void				disconnect(const User &user);
 		void				deleteOperator(const User &user);
@@ -52,14 +54,15 @@ class Channel
 		void				setPass(const std::string);
 		void				removePass(void);
         void				sendChannelUsers(const User &user);
+		void				sendChannelInfo(const User &user);
         void				sendTopic(const User &user);
         void                sendJoinSuccessResponce(const User &user);
 		unsigned char		getFlags() const;
         void				setTopic(const User &user, const std::string &topic);
 
 		//служебные для вывода
-		std::vector<const User *> getUsers() const;
-		std::vector<const User *> getOperators() const;
+		const std::vector<const User *> &getUsers() const;
+		const std::vector<const User *> &getOperators() const;
 		std::string	getPass() const;
 		int	getLimit() const;
 

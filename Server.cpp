@@ -15,6 +15,9 @@ Server::Server(std::string server_port, std::string server_password) :
 	_commands["TOPIC"] = &Server::topic;
     _commands["PART"] = &Server::part;
 	_commands["OPER"] = &Server::oper;
+	_commands["NAMES"] = &Server::names;
+	_commands["LIST"] = &Server::list;
+	_commands["QUIT"] = &Server::quit;
 	_motd.push_back("Welcome to IRCserv!");
 	_motd.push_back("Be good!");
 	memset(&hints, 0, sizeof(hints)); //making sure addrinfo is empty
@@ -28,8 +31,14 @@ Server::~Server(void)
 {
 	for (size_t i = 0; i < this->_users.size(); i++)
 	{
+		close(_users[i]->getSocketfd());
 		delete this->_users[i];
 	}
+	std::map<std::string, Channel *>::iterator it = _channels.begin();
+	std::map<std::string, Channel *>::iterator end = _channels.end();
+	for (; it != end; it++)
+		delete (*it).second;
+	close(socketfd);
 }
 
 /*
@@ -158,8 +167,9 @@ void Server::acceptConnection(void)
 			else //Handle incoming message
 			{
 				_users[i - 1]->processMessage();
-				if (!(_users[i - 1]->getFlags() & USER_DISCONNECTED))
-					execution(*(_users[i - 1]));
+				if ((_users[i - 1]->getFlags() & USER_DISCONNECTED))
+					disconnectUser(*_users[i - 1]);
+				execution(*(_users[i - 1]));
 			}
 			//pollfds[i].revents = 0;
 		}
@@ -194,6 +204,7 @@ void Server::execution(User &user)
 				if (ret == SERVER_DISCONNECT)
 				{
 					user.setFlags(USER_DISCONNECTED);
+					disconnectUser(user);
 					return ;
 				}
 			}
@@ -201,21 +212,34 @@ void Server::execution(User &user)
 	}
 }
 
-void Server::disconnectUsers(void)
+void Server::disconnectUser(User &user)
 {
-	for (int i = 0; i < _users.size(); i++)
-	{
-		if (!(_users[i]->getFlags() & USER_DISCONNECTED))
-			continue;
-		std::cout << "Disconnect! Socket: " << _users[i]->getSocketfd() << std::endl;
-		close(_users[i]->getSocketfd());
+		std::cout << "Disconnect! Socket: " << user.getSocketfd() << std::endl;
 		//
 		//Need channel notices and removals
 		//
-		delete _users[i];
-		_users.erase(_users.begin() + i);
+		close(user.getSocketfd());
+		std::vector<User *>::iterator it = std::find(_users.begin(), _users.end(), &user);
+		delete *it;
+		size_t i = std::distance(_users.begin(), it);
+		_users.erase(it);
 		pollfds.erase(pollfds.begin() + i + 1);
-		i--;
+}
+
+void Server::clearEmptyChannels(void)
+{
+	std::map<std::string, Channel *>::iterator it = _channels.begin();
+	std::map<std::string, Channel *>::iterator end = _channels.end();
+	for (; it != end;)
+	{
+		if ((*it).second->isEmpty())
+		{
+			delete (*it).second;
+			_channels.erase(it);
+			it = _channels.begin();
+		}
+		else
+			it++;
 	}
 }
 

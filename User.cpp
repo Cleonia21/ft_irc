@@ -33,7 +33,10 @@ void User::processMessage(void)
 //	if (data.length() > 512)
 //		data = data.substr(0, 510) + "\r\n";
 	if (nbytes == 0)
+	{
 		setFlags(USER_DISCONNECTED);
+		return ;
+	}
 	while (data.find("\r\n") != std::string::npos)
 		data.replace(data.find("\r\n"), 2, "\n");
 	if (data.size() > 1)
@@ -99,6 +102,7 @@ std::string User::getHostName( void ) const { return (_hostName); }
 std::string User::getUserName( void ) const { return (_userName); }
 std::string User::getRealName( void ) const { return (_realName); }
 unsigned char User::getFlags( void ) const { return this->_flags; }
+std::string User::getQuitMessage( void ) const { return _quitMessage; }
 std::queue<std::string> User::getMessages( void ) const { return _messages; }
 int User::getSocketfd( void ) const { return this->_socketfd; }
 std::vector<const Channel *> User::getChannels() const { return _channels; }
@@ -112,6 +116,7 @@ void User::setNick( std::string nick ) { _nick = nick; }
 void User::setHostName( std::string hostName ) { _hostName = hostName; }
 void User::setUserName( std::string userName) { _userName = userName; }
 void User::setRealName( std::string realName) { _realName = realName; }
+void User::setQuitMessage(const std::string &message) { _quitMessage = message; }
 
 
 void User::setFlags(unsigned char user_state_enum)
