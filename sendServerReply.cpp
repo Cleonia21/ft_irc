@@ -72,7 +72,7 @@ int sendServerReply (const User &user, int code,
 			reply += arg1 + " " + arg2 + " :is already on channel\n";
 			break;
 		case ERR_NOTREGISTERED:
-			reply += " :You have not registered\n";
+			reply += "* :You have not registered\n";
 			break;
 		case ERR_NEEDMOREPARAMS:
 			reply += arg1 + " :Not enough parameters\n";
@@ -167,12 +167,21 @@ int sendServerReply (const User &user, int code,
 		case RPL_LUSERME:
 			reply += ":I have " + arg1 + " clients and " + arg2 + " servers\n";
 			break;
-        case RPL_NAMREPLY:
-            reply += arg1 + " :" + arg2 + "\n";
-            break;
-        case RPL_ENDOFNAMES:
-            reply += arg1 + " :End of /NAMES list\n";
-            break;
+		case RPL_NAMREPLY:
+			reply += arg1 + " :" + arg2 + "\n";
+			break;
+		case RPL_ENDOFNAMES:
+			reply += arg1 + " :End of /NAMES list\n";
+			break;
+		case RPL_LISTSTART:
+			reply += "Channel :Users Name\n";
+			break;
+		case RPL_LIST:
+			reply += arg1 + " " + arg2 + " :" + arg3 + "\n";
+			break;
+		case RPL_LISTEND:
+			reply += "End of /LIST\n";
+			break;
 		default:
 			reply += "UNKNOWN REPLY\n";
 			break;

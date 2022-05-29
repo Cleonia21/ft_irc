@@ -71,7 +71,7 @@ int main(int argc, char **argv)
 	{
 		server.acceptConnection();
 
-		server.disconnectUsers();
+		server.clearEmptyChannels();
 	}
 	return (0);
 }

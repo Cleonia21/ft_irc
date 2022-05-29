@@ -23,6 +23,9 @@ $(OBJ_DIR)/%.o: %.cpp
 $(NAME): $(OBJ_DIR) $(OBJS)
 		$(CPP) $(OBJS) -o $(NAME)
 
+debug:
+		$(CPP) -o $(NAME) -gdwarf $(SRCS)
+
 clean:
 		rm -rf $(OBJ_DIR)
 

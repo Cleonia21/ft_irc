@@ -29,6 +29,7 @@ class User
 		std::string		_realName;
 		std::string		_password;
 		int				_socketfd;
+		std::string		_quitMessage;
 		unsigned char	_flags;
 		std::queue<std::string>		_messages;
         std::vector<const Channel *>  _channels;
@@ -55,6 +56,7 @@ class User
 		void setRealName( std::string );
 		void setFlags(unsigned char user_state_enum);
 		void clearFlags(unsigned char user_state_enum);
+		void setQuitMessage(const std::string &message);
 
 		std::string getPassword( void ) const;
 		std::string getNick( void ) const;
@@ -66,6 +68,7 @@ class User
         std::vector<const Channel *> getChannels() const;
 		std::queue<std::string> getMessages( void ) const;
 		int getSocketfd( void ) const;
+		std::string getQuitMessage( void ) const;
 
 		bool operator==(const User &a);
         bool isChannelMember(const std::string& channelNameToFind) const;
