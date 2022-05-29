@@ -469,7 +469,10 @@ int Server::names(User &user, Input &input)
 		std::set<std::string> unboundUsers; // Все юзеры вначале, юзеры без канала в конце
 		std::set<std::string> channelUsers; // Юзеры в видимом канале
 		for (size_t i = 0; i < _users.size(); i++)
-			unboundUsers.insert(_users[i]->getNick());
+		{
+			if (!(_users[i]->getFlags() & USER_INVISIBLE))
+				unboundUsers.insert(_users[i]->getNick());
+		}
 
 		std::map<std::string, Channel *>::iterator it = _channels.begin();
 		std::map<std::string, Channel *>::iterator end = _channels.end();

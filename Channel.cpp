@@ -33,6 +33,11 @@ void	Channel::sendChannelUsers(const User &user) {
 	std::vector<const User *>::const_iterator	ite = _usersList.end();
 	while (itb != ite)
 	{
+		if ((*itb)->getFlags() & USER_INVISIBLE)
+		{
+			++itb;
+			continue ;
+		}
 		const User	*tmp = *itb;
 		if (isOperator(*tmp))
 			usersList += "@";
