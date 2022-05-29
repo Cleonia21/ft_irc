@@ -149,7 +149,7 @@ int Server::join(User &user, Input &input) {
 	return 0;
 }
 
-int		Server::kick(User &user, Input &input)
+int	Server::kick(User &user, Input &input)
 {
 	std::string channelName = input.getParams()[0];
 	std::string nickName = input.getParams()[1];
@@ -210,17 +210,18 @@ int Server::part(User &user, Input &input) {
 	return 0;
 }
 
-bool checkFlagsForValid(std::string _flags)
+bool checkModeFlags(std::string object, std::string _flags)
 {
-	if ((_flags[0] != '+' && _flags[0] != '-')
-			|| _flags.size() > 7)
+	if (_flags[0] != '+' && _flags[0] != '-')
 		return false;
 	const char *flags = _flags.c_str() + 1; // пропускаем +-
 	const char *dict;
-	if (_flags.size() == 2)
+	if (_flags.size() == 2 && (object[0] == '#' || object[0] == '&'))
 		dict = "opsitnmlbvk";
-	else
+	else if (object[0] == '#' || object[0] == '&')
 		dict = "psitnm";
+	else
+		dict = "isow";
 	// проверка на отличные символы в flags от символов в dict
 	if (strspn(flags, dict) != _flags.size() - 1)
 		return false;
@@ -233,11 +234,17 @@ bool checkFlagsForValid(std::string _flags)
 
 int Server::mode(User &user, Input &input)
 {
+	User *tmpUser;
+
 	if (input.getParams().size() < 2)
 		return sendServerReply(user, ERR_NEEDMOREPARAMS, input.getCommand());
 
 	std::string object = input.getParams()[0];
 	std::string flags = input.getParams()[1];
+
+	if (!checkModeFlags(object, flags))
+		return sendServerReply(user, ERR_UNKNOWNMODE, flags);
+
 	if (object[0] == '#' || object[0] == '&') // chanel
 	{
 		Channel *channel;
@@ -245,8 +252,6 @@ int Server::mode(User &user, Input &input)
 		catch (const std::exception &e) { return sendServerReply(user, ERR_NOSUCHCHANNEL, object); }
 		if (!channel->isOperator(user))
 			return sendServerReply(user, ERR_CHANOPRIVSNEEDED, channel->getName());
-		if (!checkFlagsForValid(flags))
-			return sendServerReply(user, ERR_UNKNOWNMODE, flags);
 
 		for (int i = 1; flags[i] != '\0'; i++)
 		{
@@ -283,7 +288,7 @@ int Server::mode(User &user, Input &input)
 			std::string argument = input.getParams()[2];
 			if (flags[i] == 'o')
 			{
-				User *tmpUser = this->searchUser(SRCH_NICK, argument);
+				tmpUser = this->searchUser(SRCH_NICK, argument);
 				if (!tmpUser)
 					return sendServerReply(user, ERR_NOSUCHNICK, argument);
 				if (flags[0] == '-')
@@ -316,7 +321,32 @@ int Server::mode(User &user, Input &input)
 	}
 	else
 	{
-
+		tmpUser = this->searchUser(SRCH_NICK, object);
+		if (!tmpUser)
+			return sendServerReply(user, ERR_NOSUCHNICK, object);
+		for (int i = 1; flags[i] != '\0'; i++)
+		{
+			unsigned char flag;
+			switch (flags[i])
+			{
+			case 'i':
+				flag = USER_INVISIBLE;
+				break;
+			case 's':
+				flag = USER_NOTICE;
+				break;
+			case 'o':
+				flag = USER_OPERATOR;
+				break;
+			case 'w':
+				flag = USER_WALLOPS;
+				break;
+			}
+			if (flags[0] == '-')
+				tmpUser->clearFlags(flag);
+			else if (flag != USER_OPERATOR)
+				tmpUser->setFlags(flag);
+		}
 	}
 
 	return (0);
