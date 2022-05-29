@@ -1,6 +1,22 @@
 #include "Server.hpp"
 #include "Channel.hpp"
 
+int Server::oper(User &user, Input &input)
+{
+	if (input.getParams().size() != 2)
+		return sendServerReply(user, ERR_NEEDMOREPARAMS, input.getCommand());
+	try
+	{
+		if (_operators.at(input.getParams()[0]) == input.getParams()[1])
+		{
+			user.setFlags(USER_OPERATOR);
+			return sendServerReply(user, RPL_YOUREOPER);
+		}
+	}
+	catch(const std::exception& e) {}
+	return sendServerReply(user, ERR_PASSWDMISMATCH);
+}
+
 int Server::pass(User &user, Input &input)
 {
 	if (input.getParams().size() == 0) //если не указан пароль
@@ -166,8 +182,6 @@ int		Server::kick(User &user, Input &input)
     }
     return 0;
 }
-
-
 
 bool checkFlagsForValid(std::string _flags)
 {

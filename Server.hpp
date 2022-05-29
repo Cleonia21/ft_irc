@@ -30,6 +30,7 @@ class Server
 		std::string									_port;
 		std::string									_password;
 		std::vector<User *>							_users;
+		std::map<std::string, std::string>			_operators;
 		std::map<std::string, Channel *>			_channels;
 		std::map<std::string, Command>				_commands;
 		std::map<std::string, Command>::iterator 	_iter; //internal iterator for commands
@@ -67,8 +68,10 @@ class Server
 		int notice(User &user, Input &input);
         int topic(User &user, Input &input);
         int part(User &user, Input &input);
+		int oper(User &user, Input &input);
 
 		bool printer(Input &input);
+
 
 		//unused
 		Server(void);

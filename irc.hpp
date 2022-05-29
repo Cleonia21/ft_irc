@@ -52,7 +52,7 @@ enum e_errors
 	ERR_NEEDMOREPARAMS =		461, //"<command> :Not enough parameters"
 	ERR_ALREADYREGISTRED =		462, //":Unauthorized command (already registered)"
 	ERR_NOPERMFORHOST =			463,
-	ERR_PASSWDMISMATCH =		464,
+	ERR_PASSWDMISMATCH =		464, // ":Password incorrect"
 	ERR_YOUREBANNEDCREEP =		465,
 	ERR_KEYSET =				467,
 	ERR_CHANNELISFULL =			471,
@@ -106,7 +106,7 @@ enum e_replies
 	RPL_MOTDSTART =			375,
 	RPL_MOTD =				372,
 	RPL_ENDOFMOTD =			376,
-	RPL_YOUREOPER =			381,
+	RPL_YOUREOPER =			381, // ":You are now an IRC operator"
 	RPL_REHASHING =			382,
 	RPL_TIME =				391,
 	RPL_USERSSTART =		392,
