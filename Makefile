@@ -12,6 +12,15 @@ SRCS =		Server.cpp \
 OBJ_DIR = objs
 OBJS = $(addprefix $(OBJ_DIR)/, $(SRCS:.cpp=.o))
 
+MEBOT = mebot
+B_SRCS =	main.cpp \
+			Bot.cpp \
+			Input.cpp
+BOT_DIR = bot
+BOT_SRCS = $(addprefix $(BOT_DIR)/, $(B_SRCS))
+BOT_OBJ_DIR = $(OBJ_DIR)/bot
+BOT_OBJS = $(addprefix $(OBJ_DIR)/, $(BOT_SRCS:.cpp=.o))
+
 all: $(NAME)
 
 $(OBJ_DIR):
@@ -23,6 +32,16 @@ $(OBJ_DIR)/%.o: %.cpp
 $(NAME): $(OBJ_DIR) $(OBJS)
 		$(CPP) $(OBJS) -o $(NAME)
 
+#########################
+#Make bot. Use 'mebot'
+$(BOT_OBJ_DIR):
+		mkdir -p $@
+$(OBJ_DIR)/%.o: %.cpp
+		$(CPP) -c $< -o $@
+$(MEBOT): $(BOT_OBJ_DIR) $(BOT_OBJS)
+		$(CPP) $(BOT_OBJS) -o $(MEBOT)
+##########################
+
 debug:
 		$(CPP) -o $(NAME) -gdwarf $(SRCS)
 
@@ -30,7 +49,7 @@ clean:
 		rm -rf $(OBJ_DIR)
 
 fclean: clean
-		rm -f $(NAME)
+		rm -f $(NAME) $(MEBOT)
 
 re: fclean all
 

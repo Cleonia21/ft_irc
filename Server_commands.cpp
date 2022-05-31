@@ -34,11 +34,18 @@ int Server::nick(User &user, Input &input)
 	else if (!isNickValid(input.getParams()[0]) || input.getParams()[0] == ircName) //Чек на символы
 		sendServerReply(user, ERR_ERRONEUSNICKNAME, input.getParams()[0]);
 	else if (containsNickname(input.getParams()[0])) //Чек на присутствие другого юзера с ником
+	{
+		if (user.getNick() == "")
+			user.setNick("*");
 		sendServerReply(user, ERR_NICKNAMEINUSE, input.getParams()[0]);
+		if (user.getNick() == "*")
+			user.setNick("");
+	}
 	else
 	{
 		if (user.getFlags() & USER_REGISTERED)
 		{
+			user.sendMessage(":" + user.getMask() + " " + "NICK :" + input.getParams()[0] + "\n");
 			/*
 			 * Need to notify other Users in channels of this user nickname change
 			 */
@@ -417,11 +424,12 @@ int Server::sendPM(User &user, Input &input, int silent)
 		else //Для юзеров
 		{
 			check = 0;
-			if (!containsNickname(receivers.front()))
+			std::string trueNick = getTrueNickname(receivers.front());
+			if (!containsNickname(trueNick))
 				check = pm_or_notice(user, input, ERR_NOSUCHNICK, silent, receivers.front());
 			if (!check)
 			{
-				User *recipient = searchUser(SRCH_NICK, receivers.front());
+				User *recipient = searchUser(SRCH_NICK, trueNick);
 				std::string msg = ":" + user.getMask() + " " + input.getCommand() + " " + recipient->getNick() + " :" + input.getParams()[1] + "\n";
 				recipient->sendMessage(msg);
 			}
@@ -430,6 +438,17 @@ int Server::sendPM(User &user, Input &input, int silent)
 	}
 
 	return (0);
+}
+
+std::string Server::getTrueNickname(std::string &mask)
+{
+	std::string nickName;
+	size_t found = mask.find("!");
+	if (found != std::string::npos)
+		nickName = std::string(mask.begin(), mask.begin() + found);
+	else
+		nickName = mask;
+	return (nickName);
 }
 
 int Server::privmsg(User &user, Input &input)

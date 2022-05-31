@@ -50,6 +50,7 @@ class Server
 		void sendWelcome(const User &user) const;
 		void sendMOTD(const User &user) const;
 		int sendPM(User &user, Input &input, int silent);
+		std::string getTrueNickname(std::string &mask);
 
 		//socketManagement
 		void socketGetaddrinfo(void);
