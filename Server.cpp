@@ -4,20 +4,20 @@
 Server::Server(std::string server_port, std::string server_password) :
 	_port(server_port), _password(server_password)
 {
-	_commands["PASS"] = &Server::pass;
-	_commands["NICK"] = &Server::nick;
-	_commands["USER"] = &Server::user;
-	_commands["MODE"] = &Server::mode;
-	_commands["PRIVMSG"] = &Server::privmsg;
-	_commands["NOTICE"] = &Server::notice;
-    _commands["JOIN"] = &Server::join;
-    _commands["KICK"] = &Server::kick;
-	_commands["TOPIC"] = &Server::topic;
-    _commands["PART"] = &Server::part;
-	_commands["OPER"] = &Server::oper;
-	_commands["NAMES"] = &Server::names;
-	_commands["LIST"] = &Server::list;
-	_commands["QUIT"] = &Server::quit;
+	_commands["PASS"] = 	&Server::pass;
+	_commands["NICK"] =		&Server::nick;
+	_commands["USER"] = 	&Server::user;
+	_commands["MODE"] = 	&Server::mode;
+    _commands["JOIN"] = 	&Server::join;
+    _commands["KICK"] = 	&Server::kick;
+    _commands["PART"] = 	&Server::part;
+	_commands["OPER"] = 	&Server::oper;
+	_commands["LIST"] = 	&Server::list;
+	_commands["QUIT"] = 	&Server::quit;
+	_commands["TOPIC"] = 	&Server::topic;
+	_commands["NAMES"] = 	&Server::names;
+	_commands["NOTICE"] = 	&Server::notice;
+	_commands["PRIVMSG"] = 	&Server::privmsg;
 	_motd.push_back("Welcome to IRCserv!");
 	_motd.push_back("Be good!");
 	memset(&hints, 0, sizeof(hints)); //making sure addrinfo is empty

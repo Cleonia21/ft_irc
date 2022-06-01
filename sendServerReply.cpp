@@ -107,6 +107,17 @@ int sendServerReply (const User &user, int code,
 		case ERR_NOOPERHOST:
 			reply += ":No O-lines for your host\n";
 			break;
+		case ERR_USERSDONTMATCH:
+			reply += ":Cant change mode for other users\n";
+			break;
+		case RPL_CHANNELMODEIS:
+			reply += arg1 + " " + arg2 + " " + arg3 + "\n";
+			break;
+		case ERR_UNKNOWNMODE:
+			reply += arg1 + " :is unknown mode char to me\n";
+		case ERR_UMODEUNKNOWNFLAG:
+			reply += ":Unknown MODE flag\n";
+
 
 		/*
 		 * Reply cases

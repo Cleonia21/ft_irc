@@ -64,8 +64,8 @@ enum e_errors
 	ERR_CHANOPRIVSNEEDED =		482, // "<channel> :You're not channel operator"
 	ERR_CANTKILLSERVER =		483,
 	ERR_NOOPERHOST =			491,
-	ERR_UMODEUNKNOWNFLAG =		501,
-	ERR_USERSDONTMATCH =		502
+	ERR_UMODEUNKNOWNFLAG =		501, // ":Unknown MODE flag"
+	ERR_USERSDONTMATCH =		502  // ":Cant change mode for other users"
 };
 
 enum e_replies
@@ -87,7 +87,7 @@ enum e_replies
 	RPL_LISTSTART =			321,
 	RPL_LIST =				322,
 	RPL_LISTEND =			323,
-	RPL_CHANNELMODEIS =		324,
+	RPL_CHANNELMODEIS =		324, // "<channel> <mode> <mode params>"
 	RPL_NOTOPIC =			331,
 	RPL_TOPIC =				332,
 	RPL_INVITING =			341,
