@@ -193,7 +193,13 @@ void Server::execution(User &user)
 		if (!(user.getFlags() & USER_REGISTERED) &&
 				cmd.getCommand() != "QUIT" && cmd.getCommand() != "PASS" &&
 				cmd.getCommand() != "USER" && cmd.getCommand() != "NICK")
+		{
+			if (user.getNick() == "")
+				user.setNick("*");
 			sendServerReply(user, ERR_NOTREGISTERED);
+			if (user.getNick() == "*")
+				user.setNick("");
+		}
 		else
 		{
 			if (_iter == _commands.end()) //проверяем наличие команды
@@ -214,16 +220,16 @@ void Server::execution(User &user)
 
 void Server::disconnectUser(User &user)
 {
-		std::cout << "Disconnect! Socket: " << user.getSocketfd() << std::endl;
-		//
-		//Need channel notices and removals
-		//
-		close(user.getSocketfd());
-		std::vector<User *>::iterator it = std::find(_users.begin(), _users.end(), &user);
-		delete *it;
-		size_t i = std::distance(_users.begin(), it);
-		_users.erase(it);
-		pollfds.erase(pollfds.begin() + i + 1);
+	std::cout << "Disconnect! Socket: " << user.getSocketfd() << std::endl;
+	//
+	//Need channel notices and removals
+	//
+	close(user.getSocketfd());
+	std::vector<User *>::iterator it = std::find(_users.begin(), _users.end(), &user);
+	delete *it;
+	size_t i = std::distance(_users.begin(), it);
+	_users.erase(it);
+	pollfds.erase(pollfds.begin() + i + 1);
 }
 
 void Server::clearEmptyChannels(void)
@@ -251,9 +257,9 @@ bool Server::isNickValid(std::string &nick) const
 	for (size_t i = 0; i < nick.size(); i++)
 	{
 		if (!((nick[i] >= 'a' && nick[i] <= 'z')
-		|| (nick[i] >= 'A' && nick[i] <= 'Z')
-		|| (nick[i] >= '0' && nick[i] <= '9')
-		|| (specials.find(nick[i]) != std::string::npos)))
+					|| (nick[i] >= 'A' && nick[i] <= 'Z')
+					|| (nick[i] >= '0' && nick[i] <= '9')
+					|| (specials.find(nick[i]) != std::string::npos)))
 			return (false);
 	}
 	return (true);
