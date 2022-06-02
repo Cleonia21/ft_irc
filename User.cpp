@@ -162,7 +162,8 @@ bool User::operator==(const User &a)
 
 void User::addNewChannel(const Channel &channel)
 {
-	_channels.push_back(&channel);
+    if (!isChannelMember(channel.getName()))
+        _channels.push_back(&channel);
 }
 
 

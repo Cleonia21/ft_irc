@@ -626,3 +626,28 @@ int Server::kill(User &user, Input &input)
 	disconnectUser(*userToKill, SERVER_KILL);
 	return (0);
 }
+
+
+int Server::invite(User &user, Input &input) {
+
+    if (input.getParams().size() < 2)
+        sendServerReply(user, ERR_NEEDMOREPARAMS, "INVITE");
+    else if (!containsNickname(input.getParams()[0]))
+        sendServerReply(user, ERR_NOSUCHNICK, input.getParams()[0]);
+    else if (!user.isChannelMember(input.getParams()[1]) || !containsChannel(input.getParams()[1]))
+        sendServerReply(user, ERR_NOTONCHANNEL, input.getParams()[1]);
+    else {
+
+        User	*userToInvite;
+        for (size_t i = 0; i < _users.size(); ++i)
+            if (_users[i]->getNick() == input.getParams()[0])
+                userToInvite = _users[i];
+        Channel	*channelToInvite = _channels.at(input.getParams()[1]);
+        if (channelToInvite->isChannelUser(input.getParams()[1]))
+            sendServerReply(user, ERR_USERONCHANNEL, input.getParams()[0], input.getParams()[1]);
+        else
+            channelToInvite->inviteToChannel(user, *userToInvite);
+    }
+
+    return 0;
+}

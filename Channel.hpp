@@ -45,6 +45,7 @@ class Channel
 		void				disconnect(const User &user);
 		void				deleteOperator(const User &user);
 		void				deleteUser(const User &user);
+        void                deleteFromInviteesList(const User &user);
 
 		void				setFlag(unsigned char flag);
 		void				clearFlag(unsigned char flag);
@@ -62,6 +63,7 @@ class Channel
 		unsigned char		getFlags() const;
         void				setTopic(const User &user, const std::string &topic);
 		void				fillInUsers(std::set<const User *> &uniq) const; //добавить юзеров их всех каналов
+        void                inviteToChannel(const User &user, const User &userToInvite);
 
 		//служебные для вывода
 		const std::vector<const User *> &getUsers() const;

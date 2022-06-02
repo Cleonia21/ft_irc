@@ -6,7 +6,6 @@ Channel::Channel(const std::string& name, const User& creator)
 		
 		_usersList.push_back(&creator);
 		_operatorsList.push_back(&creator);
-
 		sendJoinSuccessResponce(creator);
 	}
 
@@ -101,9 +100,16 @@ int	Channel::connect(const User &user, const std::string &key) {
 		return -1;
 	
 	_usersList.push_back(&user);
-	//removeInvited(user);
+    deleteFromInviteesList(user);
 	sendJoinSuccessResponce(user);
 	return 0;
+}
+
+void Channel::deleteFromInviteesList(const User &user) {
+
+    for (int i = 0; i < _inviteesList.size(); i++)
+        if (_inviteesList[i] == &user)
+            _inviteesList.erase(_inviteesList.begin() + i);
 }
 
 bool Channel::isInvited(const User &user) const {
@@ -159,12 +165,7 @@ void	Channel::sendNotification(const std::string &msg, const User &user) const
 
 void Channel::disconnect(const User &user) {
 
-	std::vector<const User *>::iterator	begin = _usersList.begin();
-	std::vector<const User *>::iterator	end = _usersList.end();
-	for (; begin != end; ++begin)
-		if (*begin == &user)
-			break ;
-	_usersList.erase(begin);
+    deleteUser(user);
 	deleteOperator(user);
 }
 
@@ -189,9 +190,8 @@ void Channel::fillInUsers(std::set<const User *> &uniq) const
 
 void Channel::deleteOperator(const User &user) {
 
-	if (isOperator(user))
-	{
-		size_t	i;
+	if (isOperator(user)) {
+		int	i;
 		for (i = 0; i < _operatorsList.size(); i++)
 			if (_operatorsList[i] == &user)
 				break;
@@ -206,14 +206,12 @@ void Channel::deleteOperator(const User &user) {
 }
 
 void Channel::deleteUser(const User &user) {
-	if (isChannelUser(user.getNick()))
-	{
-		size_t i;
-		for (i = 0; i < _usersList.size(); i++)
-			if (_usersList[i] == &user)
-				break;
-		_usersList.erase(_usersList.begin() + i);
-	}
+
+		for (int i = 0; i < _usersList.size(); i++)
+			if (_usersList[i] == &user) {
+                _usersList.erase(_usersList.begin() + i);
+                break;
+            }
 }
 
 void    Channel::addOperator(const User &user)
@@ -268,6 +266,18 @@ void	Channel::setFlag(unsigned char flag)
 void	Channel::clearFlag(unsigned char flag)
 {
 	this->_flags &= ~flag;
+}
+
+void Channel::inviteToChannel(const User &user, const User &userToInvite) {
+
+    if (_flags & CHL_INVITEONLY && !isOperator(user))
+        sendServerReply(user, ERR_CHANOPRIVSNEEDED, _name);
+    else
+    {
+        _inviteesList.push_back(&userToInvite);
+        userToInvite.sendMessage(":" + user.getMask() + " INVITE " + userToInvite.getNick() + " :" + _name + "\n");
+        sendServerReply(user, RPL_INVITING, _name, userToInvite.getNick());
+    }
 }
 
 const std::vector<const User *> &Channel::getUsers() const { return (this->_usersList); }
