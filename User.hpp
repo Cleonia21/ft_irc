@@ -48,8 +48,9 @@ class User
 		void processMessage(void);
 		std::string getNextMessage( void );
         void addNewChannel(const Channel& channel);
-		void sendMessage(const std::string message) const;
+		void sendMessage(std::string message) const;
         void leaveChannel(const std::string& channelName);
+		void sendToAllUserChannels(std::string &msg) const;
 
 
 		void setPassword( std::string );

@@ -7,12 +7,13 @@
 #include "User.hpp"
 
 enum Channel_states {
-	CHL_PRIVATE	=       0b000001,
-	CHL_SECRET =        0b000010,
-	CHL_MODERATED =     0b000100,
-	CHL_INVITEONLY =    0b001000,
-	CHL_TOPICSET =      0b010000,
-	CHL_NOMSGOUT =      0b100000
+	CHL_PRIVATE	=       0b0000001,
+	CHL_SECRET =        0b0000010,
+	CHL_MODERATED =     0b0000100,
+	CHL_INVITEONLY =    0b0001000,
+	CHL_TOPICSET =      0b0010000,
+	CHL_NOMSGOUT =      0b0100000,
+	CHL_PASSWORDED =	0b1000000
 };
 
 class User;
@@ -31,7 +32,7 @@ class Channel
 		std::vector<const User *>			_inviteesList;
 
 	public:
-		Channel(const std::string& name, const User& creator, const std::string& password = "");
+		Channel(const std::string& name, const User& creator);
 		~Channel();
 		int                 connect(const User &user, const std::string &key);
 		static bool         isChannelNameCorrect(const std::string &name);
@@ -49,6 +50,7 @@ class Channel
 		void				clearFlag(unsigned char flag);
 		void				addOperator(const User &user);
 		void				setLimit(int limit);
+		void				removeLimit(void);
 		void				removeFromBan(const std::string &nick);
 		void				addInBan(const std::string &nick);
 		void				setPass(const std::string);
@@ -59,6 +61,7 @@ class Channel
         void                sendJoinSuccessResponce(const User &user);
 		unsigned char		getFlags() const;
         void				setTopic(const User &user, const std::string &topic);
+		void				fillInUsers(std::set<const User *> &uniq) const; //добавить юзеров их всех каналов
 
 		//служебные для вывода
 		const std::vector<const User *> &getUsers() const;

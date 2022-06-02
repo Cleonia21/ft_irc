@@ -86,6 +86,9 @@ int sendServerReply (const User &user, int code,
 		case ERR_CHANNELISFULL:
 			reply += arg1 + " :Cannot join channel (+l)\n";
 			break;
+		case ERR_UNKNOWNMODE:
+			reply += arg1 + " :is unknown mode char to me\n";
+			break;
 		case ERR_INVITEONLYCHAN:
 			reply += arg1 + " :Cannot join channel (+i)\n";
 			break;
@@ -113,10 +116,9 @@ int sendServerReply (const User &user, int code,
 		case RPL_CHANNELMODEIS:
 			reply += arg1 + " " + arg2 + " " + arg3 + "\n";
 			break;
-		case ERR_UNKNOWNMODE:
-			reply += arg1 + " :is unknown mode char to me\n";
 		case ERR_UMODEUNKNOWNFLAG:
 			reply += ":Unknown MODE flag\n";
+			break;
 
 
 		/*

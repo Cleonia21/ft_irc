@@ -1,21 +1,5 @@
 #include "Server.hpp"
 
-int Server::oper(User &user, Input &input)
-{
-	if (input.getParams().size() != 2)
-		return sendServerReply(user, ERR_NEEDMOREPARAMS, input.getCommand());
-	try
-	{
-		if (_operators.at(input.getParams()[0]) == input.getParams()[1])
-		{
-			user.setFlags(USER_OPERATOR);
-			return sendServerReply(user, RPL_YOUREOPER);
-		}
-	}
-	catch(const std::exception& e) {}
-	return sendServerReply(user, ERR_PASSWDMISMATCH);
-}
-
 int Server::pass(User &user, Input &input)
 {
 	if (input.getParams().size() == 0) //если не указан пароль
@@ -45,10 +29,8 @@ int Server::nick(User &user, Input &input)
 	{
 		if (user.getFlags() & USER_REGISTERED)
 		{
-			user.sendMessage(":" + user.getMask() + " " + "NICK :" + input.getParams()[0] + "\n");
-			/*
-			 * Need to notify other Users in channels of this user nickname change
-			 */
+			std::string message = ":" + user.getMask() + " NICK :" + input.getParams()[0];
+			user.sendToAllUserChannels(message);
 		}
 		user.setNick(input.getParams()[0]);
 	}
@@ -78,7 +60,7 @@ int Server::checkForRegistration(User &user)
 	if (!(_password.size() == 0 || user.getPassword() == _password)) //Чек на пароль
 	{
 		sendServerReply(user, ERR_PASSWDMISMATCH);
-		user.sendMessage("ERROR :Closing Link: (Bad Password)\n");
+		user.setQuitMessage("Bad Password");
 		return (SERVER_DISCONNECT);
 	}
 
@@ -120,8 +102,8 @@ void Server::sendMOTD(const User &user) const
 
 int Server::join(User &user, Input &input) {
 
-	if (input.getParams()[0] == "")
-        sendServerReply(user, ERR_NEEDMOREPARAMS, "JOIN");
+	if (input.getParams().size() == 0)
+        return sendServerReply(user, ERR_NEEDMOREPARAMS, "JOIN");
 
 	std::queue<std::string> channels = User::split(input.getParams()[0], ',', 1);
 	std::queue<std::string> keys;
@@ -145,12 +127,13 @@ int Server::join(User &user, Input &input) {
 		else {
 			try {
 				Channel *tmp = _channels.at(channelName);
-				tmp->connect(user, channelKey);
+				if (tmp->connect(user, channelKey) == 0)
+					user.addNewChannel(*(_channels.at(channelName)));
 			}
 			catch (const std::exception &e) {
-				_channels[channelName] = new Channel(channelName, user, channelKey);
+				_channels[channelName] = new Channel(channelName, user);
+				user.addNewChannel(*(_channels.at(channelName)));
 			}
-			user.addNewChannel(*(_channels.at(channelName)));
 		}
 	}
 	return 0;
@@ -158,19 +141,20 @@ int Server::join(User &user, Input &input) {
 
 int	Server::kick(User &user, Input &input)
 {
+	if (input.getParams().size() < 2)
+		return sendServerReply(user, ERR_NEEDMOREPARAMS, "KICK");
+
 	std::string channelName = input.getParams()[0];
 	std::string nickName = input.getParams()[1];
 
-	if (input.getParams().size() < 2)
-		sendServerReply(user, ERR_NEEDMOREPARAMS, "KICK");
-	else if (_channels.find(channelName) == _channels.end())
+	if (_channels.find(channelName) == _channels.end()) //нет указанного канала
 		sendServerReply(user, ERR_NOSUCHCHANNEL, channelName);
-	else if (!_channels.at(channelName)->isOperator(user))
-		sendServerReply(user, ERR_CHANOPRIVSNEEDED, channelName);
-	else if (!_channels.at(channelName)->isChannelUser(user.getNick()))
-		sendServerReply(user, ERR_NOTONCHANNEL, channelName);
-	else if (!containsNickname(nickName))
+	else if (!containsNickname(nickName)) //нет указанного ника
 		sendServerReply(user, ERR_NOSUCHNICK, nickName);
+	else if (!_channels.at(channelName)->isChannelUser(user.getNick())) //не на канале
+		sendServerReply(user, ERR_NOTONCHANNEL, channelName);
+	else if (!_channels.at(channelName)->isOperator(user)) //не оператор канала
+		sendServerReply(user, ERR_CHANOPRIVSNEEDED, channelName);
 	else if (!_channels.at(channelName)->isChannelUser(nickName))
 		sendServerReply(user, ERR_USERNOTINCHANNEL, nickName, channelName);
 	else {
@@ -183,12 +167,14 @@ int	Server::kick(User &user, Input &input)
 			message += ":no reason";
 
 		std::cout << message << "\n";
+		user.sendMessage(":" + user.getMask() + " " + message);
 		channel->sendNotification(message, user);
 		User *userToBeKicked;
 		for (int i = 0; i < _users.size(); i++)
 			if (_users[i]->getNick() == nickName)
 				userToBeKicked = _users[i];
 		channel->disconnect(*(userToBeKicked));
+		userToBeKicked->leaveChannel(channelName);
 	}
 	return 0;
 }
@@ -207,6 +193,7 @@ int Server::part(User &user, Input &input) {
 			else if (!user.isChannelMember(channels.front()))
 				sendServerReply(user, ERR_NOTONCHANNEL, channels.front());
 			else {
+				user.sendMessage(":" + user.getMask() + " PART " + channels.front());
 				_channels.at(channels.front())->sendNotification("PART " + channels.front(), user);
 				_channels.at(channels.front())->disconnect(user);
 				user.leaveChannel(channels.front());
@@ -309,7 +296,12 @@ int Server::mode(User &user, Input &input)
 					channel->addOperator(*tmpUser);
 			}
 			if (flags[i] == 'l')
-				channel->setLimit(std::stoi(argument));
+			{
+				if (flags[0] == '-')
+					channel->removeLimit();
+				else
+					channel->setLimit(std::stoi(argument));
+			}
 			if (flags[i] == 'b')
 			{
 				if (flags[0] == '-')
@@ -338,6 +330,8 @@ int Server::mode(User &user, Input &input)
 	}
 	else
 	{
+		if (user.getNick() != object)
+			return sendServerReply(user, ERR_USERSDONTMATCH);
 		tmpUser = this->searchUser(SRCH_NICK, object);
 		if (!tmpUser)
 			return sendServerReply(user, ERR_USERSDONTMATCH, object);
@@ -440,7 +434,7 @@ int Server::sendPM(User &user, Input &input, int silent)
 			if (!check)
 			{
 				User *recipient = searchUser(SRCH_NICK, trueNick);
-				std::string msg = ":" + user.getMask() + " " + input.getCommand() + " " + recipient->getNick() + " :" + input.getParams()[1] + "\n";
+				std::string msg = ":" + user.getMask() + " " + input.getCommand() + " " + recipient->getNick() + " :" + input.getParams()[1];
 				recipient->sendMessage(msg);
 			}
 		}
@@ -475,12 +469,12 @@ int Server::notice(User &user, Input &input)
 
 int Server::topic(User &user, Input &input) {
 
-	if (input.getParams().size() < 1)
-		sendServerReply(user, ERR_NEEDMOREPARAMS, "TOPIC");
-	else if (!containsChannel(input.getParams()[0]))
+	if (input.getParams().size() < 1)//Мало аргументов
+		sendServerReply(user, ERR_NEEDMOREPARAMS, input.getCommand());
+	else if (!containsChannel(input.getParams()[0]))//Нет такого канала
 		sendServerReply(user, ERR_NOTONCHANNEL, input.getParams()[0]);
 	else {
-		Channel	*c = _channels.at(input.getParams()[0]);
+		Channel *c = _channels.at(input.getParams()[0]);
 		if (!c->isChannelUser(user.getNick()))
 			sendServerReply(user, ERR_NOTONCHANNEL, input.getParams()[0]);
 		else if (input.getParams().size() < 2)
@@ -604,6 +598,41 @@ int Server::list(User &user, Input &input)
 int Server::quit(User &user, Input &input)
 {
 	if (input.getParams().size())
-		user.setQuitMessage(input.getParams()[0]);
+		user.setQuitMessage("Quit: " + input.getParams()[0]);
 	return (SERVER_DISCONNECT);
+}
+
+int Server::oper(User &user, Input &input)
+{
+	if (input.getParams().size() != 2)
+		return sendServerReply(user, ERR_NEEDMOREPARAMS, input.getCommand());
+	try
+	{
+		if (_operators.at(input.getParams()[0]) == input.getParams()[1])
+		{
+			user.setFlags(USER_OPERATOR);
+			return sendServerReply(user, RPL_YOUREOPER);
+		}
+	}
+	catch(const std::exception& e) {}
+	return sendServerReply(user, ERR_PASSWDMISMATCH);
+}
+
+int Server::kill(User &user, Input &input)
+{
+	if (!(user.getFlags() & USER_OPERATOR))
+		return (sendServerReply(user, ERR_NOPRIVILEGES));
+	else if (input.getParams().size() < 2)
+		return (sendServerReply(user, ERR_NEEDMOREPARAMS, input.getCommand()));
+	else if (input.getParams()[0] == ircName)
+		return (sendServerReply(user, ERR_CANTKILLSERVER));
+	else if (!containsNickname(input.getParams()[0]))
+		return (sendServerReply(user, ERR_NOSUCHNICK, input.getParams()[0]));
+
+	User *userToKill = searchUser(SRCH_NICK, input.getParams()[0]);
+	std::string msg = ":" + user.getMask() + " KILL " + userToKill->getNick() + " :" + input.getParams()[1];
+	userToKill->sendToAllUserChannels(msg);
+	userToKill->setQuitMessage("KILL :" + input.getParams()[1]);
+	disconnectUser(*userToKill, SERVER_KILL);
+	return (0);
 }

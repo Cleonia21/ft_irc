@@ -1,5 +1,4 @@
 #include "Server.hpp"
-#include <sys/socket.h>
 
 Server::Server(std::string server_port, std::string server_password) :
 	_port(server_port), _password(server_password)
@@ -168,8 +167,9 @@ void Server::acceptConnection(void)
 			{
 				_users[i - 1]->processMessage();
 				if ((_users[i - 1]->getFlags() & USER_DISCONNECTED))
-					disconnectUser(*_users[i - 1]);
-				execution(*(_users[i - 1]));
+					disconnectUser(*_users[i - 1], SERVER_LOSTCONNECT);
+				else
+					execution(*(_users[i - 1]));
 			}
 			//pollfds[i].revents = 0;
 		}
@@ -210,7 +210,7 @@ void Server::execution(User &user)
 				if (ret == SERVER_DISCONNECT)
 				{
 					user.setFlags(USER_DISCONNECTED);
-					disconnectUser(user);
+					disconnectUser(user, SERVER_QUIT);
 					return ;
 				}
 			}
@@ -218,13 +218,29 @@ void Server::execution(User &user)
 	}
 }
 
-void Server::disconnectUser(User &user)
+void Server::disconnectUser(User &user, int reason)
 {
 	std::cout << "Disconnect! Socket: " << user.getSocketfd() << std::endl;
-	//
-	//Need channel notices and removals
-	//
-	close(user.getSocketfd());
+	std::string message;
+	if (reason == SERVER_KILL)
+	{
+		user.sendMessage("ERROR : Closing Link: (" + user.getQuitMessage() + ")");
+		close(user.getSocketfd());
+	}
+	else
+	{
+		if (reason == SERVER_QUIT)
+			user.sendMessage("ERROR :Closing Link: (" + user.getQuitMessage() + ")");
+		else if (reason == SERVER_LOSTCONNECT)
+			user.setQuitMessage("Connection closed");
+		message = ":" + user.getMask() + " QUIT :" + user.getQuitMessage();
+		close(user.getSocketfd());
+		user.sendToAllUserChannels(message);
+	}
+	//Deleting user from channels
+	for (size_t i = 0; i < user.getChannels().size(); i++)
+		const_cast<Channel *>(user.getChannels()[i])->disconnect(user);//Не хочу мучиться иначе
+	
 	std::vector<User *>::iterator it = std::find(_users.begin(), _users.end(), &user);
 	delete *it;
 	size_t i = std::distance(_users.begin(), it);

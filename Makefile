@@ -33,6 +33,12 @@ $(OBJ_DIR)/%.o: %.cpp
 $(NAME): $(OBJ_DIR) $(OBJS)
 		$(CPP) $(OBJS) -o $(NAME)
 
+sanitize:
+	$(CPP) -o $(NAME) -fsanitize=address $(SRCS)
+
+leaks: $(NAME)
+		leaks --atExit -- ./$(NAME) 6667 1
+
 #########################
 #Make bot. Use 'mebot'
 $(BOT_OBJ_DIR):

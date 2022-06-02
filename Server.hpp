@@ -20,7 +20,13 @@
 #include "Input.hpp"
 #include "irc.hpp"
 
-#define SERVER_DISCONNECT -2
+enum Disconnect_user
+{
+	SERVER_DISCONNECT = -2,
+	SERVER_LOSTCONNECT = 0,
+	SERVER_QUIT = 1,
+	SERVER_KILL = 2
+};
 
 class Server
 {
@@ -42,7 +48,7 @@ class Server
 
 		//utility functions
 		void execution(User &user);
-		void disconnectUser(User &user);
+		void disconnectUser(User &user, int reason);
 		bool isNickValid(std::string &nick) const;
 		bool containsNickname(const std::string &nick) const;
 		bool containsChannel(const std::string &channel) const;
@@ -72,6 +78,7 @@ class Server
         int topic(User &user, Input &input);
         int part(User &user, Input &input);
 		int oper(User &user, Input &input);
+		int kill(User &user, Input &input);
         int names(User &user, Input &input);
         int list(User &user, Input &input);
         int quit(User &user, Input &input);
