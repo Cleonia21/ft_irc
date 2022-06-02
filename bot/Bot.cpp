@@ -248,7 +248,7 @@ void Bot::execute(void)
 							msg = "NOTICE " + cmd.getPrefix() + " :  " + (*j) + " \n";
 							_pendingOutMessages.push(msg);
 						}
-						msg = "NOTICE " + cmd.getPrefix() + " :  " + " \t\n";
+						msg = "NOTICE " + cmd.getPrefix() + " :  " + " " + " \t\n";
 						_pendingOutMessages.push(msg);
 					}
 				}

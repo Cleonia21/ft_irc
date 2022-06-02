@@ -5,6 +5,7 @@
 #include <iostream>
 #include <sstream>
 #include "User.hpp"
+#include <exception>
 
 const char ircName[] = "IRCSERVER";
 
@@ -54,7 +55,7 @@ enum e_errors
 	ERR_NOPERMFORHOST =			463,
 	ERR_PASSWDMISMATCH =		464, // ":Password incorrect"
 	ERR_YOUREBANNEDCREEP =		465,
-	ERR_KEYSET =				467,
+	ERR_KEYSET =				467, // "<channel> :Channel key already set"
 	ERR_CHANNELISFULL =			471,
 	ERR_UNKNOWNMODE =			472, // "<char> :is unknown mode char to me"
 	ERR_INVITEONLYCHAN =		473,

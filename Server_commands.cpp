@@ -306,15 +306,23 @@ int Server::mode(User &user, Input &input)
 			}
 			if (flags[i] == 'b')
 			{
+				tmpUser = this->searchUser(SRCH_NICK, argument);
+				if (!tmpUser)
+					return sendServerReply(user, ERR_NOSUCHNICK, argument);
 				if (flags[0] == '-')
-					channel->addInBan(argument);
+					channel->addInBan(*tmpUser);
 				else
-					channel->removeFromBan(argument);
+					channel->removeFromBan(*tmpUser);
 			}
 			if (flags[i] == 'v')
 			{
-				flags[i] = 'v';
-				// realization
+				tmpUser = this->searchUser(SRCH_NICK, argument);
+				if (!tmpUser)
+					return sendServerReply(user, ERR_NOSUCHNICK, argument);
+				if (flags[0] == '-')
+					channel->addInSpeakers(*tmpUser);
+				else
+					channel->removeInSpeakers(*tmpUser);
 			}
 			if (flags[i] == 'k')
 			{
@@ -332,7 +340,7 @@ int Server::mode(User &user, Input &input)
 	}
 	else
 	{
-		if (user.getNick() != object)
+		if (user.getNick() != object && !(user.getFlags() & USER_OPERATOR))
 			return sendServerReply(user, ERR_USERSDONTMATCH);
 		tmpUser = this->searchUser(SRCH_NICK, object);
 		if (!tmpUser)
@@ -360,6 +368,7 @@ int Server::mode(User &user, Input &input)
 			else if (flag != USER_OPERATOR)
 				tmpUser->setFlags(flag);
 		}
+		return sendServerReply(user, RPL_UMODEIS, object, flags);
 	}
 
 	return (0);

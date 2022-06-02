@@ -119,6 +119,9 @@ int sendServerReply (const User &user, int code,
 		case ERR_UMODEUNKNOWNFLAG:
 			reply += ":Unknown MODE flag\n";
 			break;
+		case RPL_UMODEIS:
+			reply += ":" + arg1 + "\n";
+			break;
 
 
 		/*

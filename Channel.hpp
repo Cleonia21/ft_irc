@@ -5,6 +5,7 @@
 #include <set>
 #include "irc.hpp"
 #include "User.hpp"
+#include <algorithm> 
 
 enum Channel_states {
 	CHL_PRIVATE	=       0b0000001,
@@ -24,12 +25,13 @@ class Channel
 		std::string							_name;
 		std::vector<const User *>			_usersList;
 		std::vector<const User *>			_operatorsList;
+		std::vector<const User *>			_speakersList;
+		std::vector<const User *>			_banList;
+		std::vector<const User *>			_inviteesList;
 		unsigned char			    		_flags;
 		std::string							_password;
 		int		            	    		_limit;
-		std::vector<const User *>			_banList;
 		std::string							_topic;
-		std::vector<const User *>			_inviteesList;
 
 	public:
 		Channel(const std::string& name, const User& creator);
@@ -52,8 +54,10 @@ class Channel
 		void				addOperator(const User &user);
 		void				setLimit(int limit);
 		void				removeLimit(void);
-		void				removeFromBan(const std::string &nick);
-		void				addInBan(const std::string &nick);
+		void				removeFromBan(const User &user);
+		void				addInBan(const User &user);
+		void				addInSpeakers(const User &user);
+		void				removeInSpeakers(const User &user);
 		void				setPass(const std::string);
 		void				removePass(void);
         void				sendChannelUsers(const User &user);

@@ -2,14 +2,32 @@
 PASS 1
 NICK Wiz
 USER a b c d e
+
+su channels
+
 JOIN #a
-MODE #a +psitnm
+MODE #a +p
+MODE #a +s
+MODE #a +i
+MODE #a +t
+MODE #a +n
+MODE #a +m
+
 su channels
-MODE #a -psitnm
+
+MODE #a -p
+MODE #a -s
+MODE #a -i
+MODE #a -t
+MODE #a -n
+MODE #a -m
+
 su channels
+
 MODE #a +o empty
 MODE #a -o
 MODE #a +l 20
+MODE #a -l
 MODE #a +k 123
 su channels
 

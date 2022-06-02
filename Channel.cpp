@@ -207,11 +207,13 @@ void Channel::deleteOperator(const User &user) {
 
 void Channel::deleteUser(const User &user) {
 
-		for (int i = 0; i < _usersList.size(); i++)
-			if (_usersList[i] == &user) {
-                _usersList.erase(_usersList.begin() + i);
-                break;
-            }
+	for (int i = 0; i < _usersList.size(); i++)
+	{
+		if (_usersList[i] == &user) {
+    	    _usersList.erase(_usersList.begin() + i);
+    	    break;
+    	}
+	}
 }
 
 void    Channel::addOperator(const User &user)
@@ -232,14 +234,32 @@ void	Channel::removeLimit(void)
 	this->_limit = -1;
 }
 
-void	Channel::addInBan(const std::string &nick)
+void	Channel::addInBan(const User &user)
 {
-
+	_banList.push_back(&user);
 }
 
-void	Channel::removeFromBan(const std::string &nick)
+void	Channel::removeFromBan(const User &user)
 {
+	std::vector<const User *>::iterator result;
 
+    result = find(_banList.begin(), _banList.end(), &user);
+	if (result != _banList.end())
+		_banList.erase(result);
+}
+
+void	Channel::addInSpeakers(const User &user)
+{
+	_speakersList.push_back(&user);
+}
+
+void	Channel::removeInSpeakers(const User &user)
+{
+	std::vector<const User *>::iterator result;
+
+    result = find(_speakersList.begin(), _speakersList.end(), &user);
+	if (result != _speakersList.end())
+		_speakersList.erase(result);
 }
 
 void	Channel::setPass(const std::string pass)
