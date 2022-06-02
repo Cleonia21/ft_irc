@@ -86,6 +86,9 @@ int sendServerReply (const User &user, int code,
 		case ERR_CHANNELISFULL:
 			reply += arg1 + " :Cannot join channel (+l)\n";
 			break;
+		case ERR_UNKNOWNMODE:
+			reply += arg1 + " :is unknown mode char to me\n";
+			break;
 		case ERR_INVITEONLYCHAN:
 			reply += arg1 + " :Cannot join channel (+i)\n";
 			break;
@@ -106,6 +109,9 @@ int sendServerReply (const User &user, int code,
 			break;
 		case ERR_NOOPERHOST:
 			reply += ":No O-lines for your host\n";
+			break;
+		case ERR_USERSDONTMATCH:
+			reply += ":Cant change mode for other users\n";
 			break;
 
 		/*

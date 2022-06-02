@@ -1,8 +1,9 @@
 #include "Channel.hpp"
 
-Channel::Channel(const std::string& name, const User& creator, const std::string& password)
-	: _name(name), _password(password), _limit(0), _flags(CHL_NOMSGOUT) {
+Channel::Channel(const std::string& name, const User& creator)
+	: _name(name), _password(""), _limit(-1), _flags(CHL_NOMSGOUT) {
 
+		
 		_usersList.push_back(&creator);
 		_operatorsList.push_back(&creator);
 
@@ -11,7 +12,8 @@ Channel::Channel(const std::string& name, const User& creator, const std::string
 
 void Channel::sendJoinSuccessResponce(const User &user) {
 
-	user.sendMessage(":" + user.getMask() + " " + "JOIN :" + _name + "\n");
+	user.sendMessage(":" + user.getMask() + " " + "JOIN :" + _name);
+	sendNotification("JOIN :" + _name, user);
 	if (!_topic.empty())
 		sendTopic(user);
 	sendChannelUsers(user);
@@ -87,25 +89,20 @@ bool Channel::isChannelNameCorrect(const std::string &name) {
 }
 
 int	Channel::connect(const User &user, const std::string &key) {
-	if ((_flags & CHL_PRIVATE) && key != _password)
-		return ERR_BADCHANNELKEY;
-	else if ((_flags & CHL_INVITEONLY) && !isInvited(user))
-		return ERR_INVITEONLYCHAN;
-	else {
-		for (int i = 0; i < _banList.size(); i++)
-			if (isBanned(user))
-				return ERR_BANNEDFROMCHAN;
-
-		std::vector<const User *>::iterator	begin = _usersList.begin();
-		std::vector<const User *>::iterator	end = _usersList.end();
-		for (; begin != end; ++begin) {
-			if ((*begin)->getNick() != user.getNick()) {
-				_usersList.push_back(&user);
-				//removeInvited(user);
-				sendJoinSuccessResponce(user);
-			}
-		}
-	}
+	if ((_flags & CHL_PASSWORDED) && key != _password) //wrong password
+		return sendServerReply(user, ERR_BADCHANNELKEY, _name);
+	else if ((_flags & CHL_INVITEONLY) && !isInvited(user)) //not invited
+		return sendServerReply(user, ERR_INVITEONLYCHAN, _name);
+	else if (_usersList.size() >= _limit) //channel is full
+		return sendServerReply(user, ERR_CHANNELISFULL, _name);
+	else if (isBanned(user)) //user is banned
+		return sendServerReply(user, ERR_BANNEDFROMCHAN, _name);
+	else if (isChannelUser(user.getNick())) //user is already on channel
+		return -1;
+	
+	_usersList.push_back(&user);
+	//removeInvited(user);
+	sendJoinSuccessResponce(user);
 	return 0;
 }
 
@@ -152,11 +149,12 @@ const std::string& Channel::getName() const { return _name; }
 void	Channel::sendNotification(const std::string &msg, const User &user) const
 {
 	std::string message;
-	message += ":" + user.getMask() + " " + msg + "\n";
+	message += ":" + user.getMask() + " " + msg;
 	std::vector<const User *>::const_iterator	begin = _usersList.begin();
 	std::vector<const User *>::const_iterator	end = _usersList.end();
-	for (; begin != end; ++begin)
-		(*begin)->sendMessage(message);
+	for (; begin != end; ++begin)// Отослать всем, кроме инициатора сообщения
+		if ((*begin) != &user)
+			(*begin)->sendMessage(message);
 }
 
 void Channel::disconnect(const User &user) {
@@ -168,7 +166,6 @@ void Channel::disconnect(const User &user) {
 			break ;
 	_usersList.erase(begin);
 	deleteOperator(user);
-	deleteUser(user);
 }
 
 void Channel::setTopic(const User &user, const std::string &topic) {
@@ -178,8 +175,16 @@ void Channel::setTopic(const User &user, const std::string &topic) {
 	else
 	{
 		this->_topic = topic;
-		sendNotification("TOPIC " + _name + " :" + this->_topic, user);
+		std::string msg = "TOPIC " + _name + " :" + this->_topic;
+		user.sendMessage(":" + user.getMask() + " " + msg);
+		sendNotification(msg, user);
 	}
+}
+
+void Channel::fillInUsers(std::set<const User *> &uniq) const
+{
+	for (int i = 0; i < _usersList.size(); i++)
+		uniq.insert(_usersList[i]);
 }
 
 void Channel::deleteOperator(const User &user) {
@@ -194,7 +199,7 @@ void Channel::deleteOperator(const User &user) {
 		if (_operatorsList.size() == 0 && _usersList.size() > 0)
 		{
 			_operatorsList.push_back(_usersList[0]);
-			//sendMessage("MODE " + this->name + " +o "  + usersList[0]->getNick() + "\n", user, true);
+			sendNotification("MODE " + _name + " +o :" + _usersList[0]->getNick(), user);
 			std::cout << "MODE " + this->_name + " +o "  + _usersList[0]->getNick() + "\n";
 		}
 	}
@@ -211,13 +216,22 @@ void Channel::deleteUser(const User &user) {
 	}
 }
 
-void    Channel::addOperator(const User &user) 
+void    Channel::addOperator(const User &user)
 {
 	_operatorsList.push_back(&user);
+	std::string msg = "MODE " + _name + " +o :" + _usersList[0]->getNick();
+	user.sendMessage(":" + user.getMask() + " " + msg);
+	sendNotification(msg, user);
 }
 
 void    Channel::setLimit(int limit) {
-	this->_limit = limit;
+	if (limit > 0)
+		this->_limit = limit;
+}
+
+void	Channel::removeLimit(void)
+{
+	this->_limit = -1;
 }
 
 void	Channel::addInBan(const std::string &nick)
@@ -232,6 +246,7 @@ void	Channel::removeFromBan(const std::string &nick)
 
 void	Channel::setPass(const std::string pass)
 {
+	setFlag(CHL_PASSWORDED);
 	_password = pass;
 }
 

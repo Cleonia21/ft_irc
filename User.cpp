@@ -4,6 +4,7 @@ User::User(std::string hostName, int new_fd)
 	: _hostName(hostName), _socketfd(new_fd)
 {
 	_flags = 0;
+	_quitMessage = "Quit: Client exited";
 	this->setFlags(USER_GETNOTICE);
 }
 
@@ -43,8 +44,9 @@ void User::processMessage(void)
 		_messages = split(data, '\n');
 }
 
-void User::sendMessage(const std::string message) const
+void User::sendMessage(std::string message) const
 {
+	message += "\n";
 	if (message.size() > 0)
 		send(_socketfd, message.c_str(), message.size(), 0);
 }
@@ -95,6 +97,18 @@ std::string User::getNextMessage(void)
 	return msg;
 }
 
+void User::sendToAllUserChannels(std::string &msg) const
+{
+	std::set<const User *> uniq;
+	for (size_t i = 0; i < getChannels().size(); i++)
+		getChannels()[i]->fillInUsers(uniq); //заполняет уникальных получателей сообщения из каналов юзера
+	std::set<const User *>::const_iterator it = uniq.begin();
+	std::set<const User *>::const_iterator end = uniq.end();
+	for (; it != end; it++)
+		(*it)->sendMessage(msg);
+	if (getChannels().empty())
+		sendMessage(msg);
+}
 
 std::string User::getPassword( void ) const { return (_password); }
 std::string User::getNick( void ) const { return (_nick); }
@@ -146,7 +160,10 @@ bool User::operator==(const User &a)
 	return (this->getNick() == a.getNick());
 }
 
-void User::addNewChannel(const Channel &channel) { _channels.push_back(&channel); }
+void User::addNewChannel(const Channel &channel)
+{
+	_channels.push_back(&channel);
+}
 
 
 bool User::isChannelMember(const std::string& channelNameToFind) const {
@@ -162,5 +179,5 @@ void User::leaveChannel(const std::string &channelName) {
     // проверьете сначала isChannelMember, если будете пользоваться
     for (int i = 0; i < _channels.size(); i++)
         if (_channels[i]->getName() == channelName)
-            _channels.erase(std::next(_channels.begin(),i));
+            _channels.erase(std::next(_channels.begin(),i)); //next is iterator (begin + i)
 }
