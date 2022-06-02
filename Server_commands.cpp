@@ -280,6 +280,8 @@ int Server::mode(User &user, Input &input)
 				channel->clearFlag(flag);
 			else if (flag != 0)
 				channel->setFlag(flag);
+            if (flag != 0)
+                continue;
 
 			if (flag == 0 && input.getParams().size() != 3)
 				return sendServerReply(user, ERR_NEEDMOREPARAMS, input.getCommand());
