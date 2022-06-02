@@ -82,6 +82,7 @@ class Server
         int names(User &user, Input &input);
         int list(User &user, Input &input);
         int quit(User &user, Input &input);
+        int invite(User &user, Input &input);
 
 		bool printer(Input &input);
 
