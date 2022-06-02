@@ -20,11 +20,11 @@ void Bot::getAbc(void)
 	_abc.resize(128, Symbol(symbol));
 	symbol.clear();
 
-	std::ifstream	fin("ABC.bot");
+	std::ifstream	fin("bot/ABC.bot");
 	if (!fin)
 		std::cout << "error in get Abc" << std::endl;
 	
-	char c = 0;
+	unsigned char c = 0;
 	while (std::getline(fin, line))
 	{
 		if (line[0] == '-')
@@ -32,6 +32,7 @@ void Bot::getAbc(void)
 			_abc[c] = Symbol(symbol);
 			symbol.clear();
 			c = line[1];
+			std::cout << c << std::endl;
 		}
 		else
 			symbol.push_back(line);
@@ -235,17 +236,20 @@ void Bot::execute(void)
 				else if (command[0] == "PRINT")
 				{
 					std::vector<std::string> symbol;
-					char c;
+					unsigned char c;
 
-					for (int i = 0; cmd.getPrefix()[i]; i++)
+					for (int i = 0; command[1][i]; i++)
 					{
-						c = cmd.getPrefix()[i];
+						c = command[1][i];
+						std::cout << c << std::endl;
 						symbol = _abc[c].getSymbol();
-						for (std::vector<std::string>::iterator j = symbol.begin(); j != symbol.end(); j++)
+						for (std::vector<std::string>::iterator j = symbol.begin(); j != symbol.end(); ++j)
 						{
 							msg = "NOTICE " + cmd.getPrefix() + " :  " + (*j) + " \n";
 							_pendingOutMessages.push(msg);
 						}
+						msg = "NOTICE " + cmd.getPrefix() + " :  " + " \t\n";
+						_pendingOutMessages.push(msg);
 					}
 				}
 				else if (command[0] == "DIAMOND")
