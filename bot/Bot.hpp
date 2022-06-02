@@ -14,6 +14,9 @@
 #include <unistd.h>
 #include <poll.h>
 #include "Input.hpp"
+#include "Symbol.hpp"
+#include <fstream>
+#include <iomanip>
 
 class Bot
 {
@@ -31,6 +34,9 @@ class Bot
 		int							socketfd;
 		std::vector<struct pollfd>	pollfds;
 		int							_authenticated;
+
+		std::vector<Symbol> 		_abc;
+		void getAbc(void);
 
 		//socketManagement
 		void socketGetaddrinfo(void);

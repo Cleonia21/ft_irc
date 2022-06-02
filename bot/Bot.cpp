@@ -8,6 +8,34 @@ Bot::Bot(std::string port, std::string password)
 	_nameCount = 0;
 	_authenticated = 0;
 	memset(&hints, 0, sizeof(hints)); //making sure addrinfo is empty
+	this->getAbc();
+}
+
+void Bot::getAbc(void)
+{
+	std::vector<std::string> symbol;
+	std::string	line;
+
+	symbol.push_back("bad symbol");
+	_abc.resize(128, Symbol(symbol));
+	symbol.clear();
+
+	std::ifstream	fin("ABC.bot");
+	if (!fin)
+		std::cout << "error in get Abc" << std::endl;
+	
+	char c = 0;
+	while (std::getline(fin, line))
+	{
+		if (line[0] == '-')
+		{
+			_abc[c] = Symbol(symbol);
+			symbol.clear();
+			c = line[1];
+		}
+		else
+			symbol.push_back(line);
+	}	
 }
 
 Bot::~Bot(void)
@@ -204,6 +232,22 @@ void Bot::execute(void)
 					msg = "NOTICE " + cmd.getPrefix() + " :shapes: <DIAMOND>\n";
 					_pendingOutMessages.push(msg);
 				}
+				else if (command[0] == "PRINT")
+				{
+					std::vector<std::string> symbol;
+					char c;
+
+					for (int i = 0; cmd.getPrefix()[i]; i++)
+					{
+						c = cmd.getPrefix()[i];
+						symbol = _abc[c].getSymbol();
+						for (std::vector<std::string>::iterator j = symbol.begin(); j != symbol.end(); j++)
+						{
+							msg = "NOTICE " + cmd.getPrefix() + " :  " + (*j) + " \n";
+							_pendingOutMessages.push(msg);
+						}
+					}
+				}
 				else if (command[0] == "DIAMOND")
 				{
 					char c = command[1][0];
@@ -231,6 +275,7 @@ void Bot::execute(void)
 
 std::vector<std::string> Bot::parsePrivmsg(std::string msg)
 {
+	std::cout << msg << std::endl;
 	std::vector<std::string> command;
 	int i = 0;
 	while (msg.size())
