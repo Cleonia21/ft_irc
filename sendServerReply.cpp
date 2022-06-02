@@ -113,6 +113,13 @@ int sendServerReply (const User &user, int code,
 		case ERR_USERSDONTMATCH:
 			reply += ":Cant change mode for other users\n";
 			break;
+		case RPL_CHANNELMODEIS:
+			reply += arg1 + " " + arg2 + " " + arg3 + "\n";
+			break;
+		case ERR_UMODEUNKNOWNFLAG:
+			reply += ":Unknown MODE flag\n";
+			break;
+
 
 		/*
 		 * Reply cases

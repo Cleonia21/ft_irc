@@ -15,7 +15,8 @@ OBJS = $(addprefix $(OBJ_DIR)/, $(SRCS:.cpp=.o))
 MEBOT = mebot
 B_SRCS =	main.cpp \
 			Bot.cpp \
-			Input.cpp
+			Input.cpp \
+			Symbol.cpp
 BOT_DIR = bot
 BOT_SRCS = $(addprefix $(BOT_DIR)/, $(B_SRCS))
 BOT_OBJ_DIR = $(OBJ_DIR)/bot

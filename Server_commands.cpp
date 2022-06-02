@@ -236,8 +236,13 @@ int Server::mode(User &user, Input &input)
 	std::string object = input.getParams()[0];
 	std::string flags = input.getParams()[1];
 
-	if (!checkModeFlags(object, flags))
-		return sendServerReply(user, ERR_UNKNOWNMODE, flags);
+	if (!checkModeFlags(object, flags)) //(x < 0 ? x : (x >= 0)
+	{
+		if (object[0] == '#' || object[0] == '&')
+			return sendServerReply(user, ERR_UNKNOWNMODE, flags);
+		else
+			return sendServerReply(user, ERR_UMODEUNKNOWNFLAG);
+	}
 
 	if (object[0] == '#' || object[0] == '&') // chanel
 	{
@@ -317,6 +322,11 @@ int Server::mode(User &user, Input &input)
 					channel->removePass();
 			}
 		}
+
+		if (input.getParams().size() == 3)
+			return sendServerReply(user, RPL_CHANNELMODEIS, object, flags, input.getParams()[2]);
+		else
+			return sendServerReply(user, RPL_CHANNELMODEIS, object, flags);
 	}
 	else
 	{
@@ -324,7 +334,7 @@ int Server::mode(User &user, Input &input)
 			return sendServerReply(user, ERR_USERSDONTMATCH);
 		tmpUser = this->searchUser(SRCH_NICK, object);
 		if (!tmpUser)
-			return sendServerReply(user, ERR_NOSUCHNICK, object);
+			return sendServerReply(user, ERR_USERSDONTMATCH, object);
 		for (int i = 1; flags[i] != '\0'; i++)
 		{
 			unsigned char flag;
@@ -334,13 +344,13 @@ int Server::mode(User &user, Input &input)
 				flag = USER_INVISIBLE;
 				break;
 			case 's':
-				flag = USER_NOTICE;
+				flag = USER_GETNOTICE;
 				break;
 			case 'o':
 				flag = USER_OPERATOR;
 				break;
 			case 'w':
-				flag = USER_WALLOPS;
+				flag = USER_GETWALLOPS;
 				break;
 			}
 			if (flags[0] == '-')
