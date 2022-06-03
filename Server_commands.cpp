@@ -203,7 +203,7 @@ int Server::part(User &user, Input &input) {
 	return 0;
 }
 
-bool checkModeFlags(std::string object, std::string _flags)
+static bool checkModeFlags(std::string object, std::string _flags)
 {
 	if (_flags[0] != '+' && _flags[0] != '-')
 		return false;
@@ -277,7 +277,9 @@ int Server::mode(User &user, Input &input)
 					args += " " + argsToKeys.front();
 				argsToKeys.pop();
 			}
-			sendServerReply(user, RPL_CHANNELMODEIS, target, keys, args);
+			std::stringstream ss;
+			ss << RPL_CHANNELMODEIS;
+			sendServerReply(user, RPL_CHANNELMODEIS, std::string(ircName), ss.str(), user.getNick() + " " + target, keys, args);
 		}
 		else
 		{
@@ -298,7 +300,9 @@ int Server::mode(User &user, Input &input)
 			if (flag & USER_GETWALLOPS)
 				keys += "w";
 			
-			sendServerReply(user, RPL_UMODEIS, keys);
+			std::stringstream ss;
+			ss << RPL_UMODEIS;
+			sendServerReply(user, RPL_UMODEIS, std::string(ircName), ss.str(), user.getNick(), keys);
 		}
 		return (0);
 	}
