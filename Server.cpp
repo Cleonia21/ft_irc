@@ -11,6 +11,7 @@ Server::Server(std::string server_port, std::string server_password) :
     _commands["KICK"] = 	&Server::kick;
     _commands["PART"] = 	&Server::part;
 	_commands["OPER"] = 	&Server::oper;
+	_commands["KILL"] = 	&Server::kill;
 	_commands["LIST"] = 	&Server::list;
 	_commands["QUIT"] = 	&Server::quit;
 	_commands["TOPIC"] = 	&Server::topic;

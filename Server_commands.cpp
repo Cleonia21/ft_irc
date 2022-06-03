@@ -279,7 +279,7 @@ int Server::mode(User &user, Input &input)
 					args += " " + argsToKeys.front();
 				argsToKeys.pop();
 			}
-			sendServerReply(user, RPL_CHANNELMODEIS, keys, args);
+			sendServerReply(user, RPL_CHANNELMODEIS, target, keys, args);
 		}
 		else
 		{
@@ -502,7 +502,8 @@ int Server::sendPM(User &user, Input &input, int silent)
 			}
 			//Юзер на канале, остается узнать есть ли права писать, если канал модерируется
 			else if (_channels[channel]->getFlags() & CHL_MODERATED
-					&& !_channels[channel]->isOperator(user)) //добавить чек на спикера
+					&& !_channels[channel]->isOperator(user)
+					&& !_channels[channel]->isSpeaker(user))
 				check = pm_or_notice(user, input, ERR_CANNOTSENDTOCHAN, silent);
 
 			//Если в верхние if не зашли (т.е. все правильно), то отправляем сообщение
