@@ -81,6 +81,7 @@ void Server::sendWelcome(const User &user) const
 	sendServerReply(user, RPL_YOURHOST, ircName, version);
 	sendServerReply(user, RPL_CREATED, date);
 	sendServerReply(user, RPL_MYINFO, ircName, version, "iosw", "biklmnopstv");
+	sendServerReply(user, RPL_UMODEIS, user.getMask(), "MODE", user.getNick(), "+s");
 }
 
 void Server::sendMOTD(const User &user) const

@@ -169,7 +169,8 @@ class User;
 
 int sendServerReply (const User &user, int code,
 		const std::string &arg1 = "", const std::string &arg2 = "",
-		const std::string &arg3 = "", const std::string &arg4 = "", const std::string &arg5 = "");
+		const std::string &arg3 = "", const std::string &arg4 = "",
+		const std::string &arg5 = "");
 
 void redCout(std::string text);
 void yellowCout(std::string text);
