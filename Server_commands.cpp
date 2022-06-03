@@ -375,7 +375,10 @@ int Server::mode(User &user, Input &input)
 				if (flags[0] == '-')
 					channel->removeLimit();
 				else
-					channel->setLimit(std::stoi(argument));
+				{
+					try { channel->setLimit(std::stoi(argument)); }
+					catch(...) {}
+				}
 			}
 			if (flags[i] == 'b')
 			{
@@ -441,7 +444,6 @@ int Server::mode(User &user, Input &input)
 	}
 	return (0);
 }
-
 
 
 static int pm_or_notice(User &user, Input &input, int code, int silent)
