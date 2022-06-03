@@ -1,5 +1,14 @@
-make --dry-run --keep-going --print-directory
+make --dry-run --always-make --keep-going --print-directory
 make: Entering directory `/Users/ChelseyLeonia/Desktop/ft_irc'
-make: Nothing to be done for `all'.
+mkdir -p objs
+c++ -g  -c Server.cpp -o objs/Server.o
+c++ -g  -c Server_commands.cpp -o objs/Server_commands.o
+c++ -g  -c User.cpp -o objs/User.o
+c++ -g  -c Channel.cpp -o objs/Channel.o
+c++ -g  -c Input.cpp -o objs/Input.o
+c++ -g  -c main.cpp -o objs/main.o
+c++ -g  -c colorCout.cpp -o objs/colorCout.o
+c++ -g  -c sendServerReply.cpp -o objs/sendServerReply.o
+c++ -g  objs/Server.o objs/Server_commands.o objs/User.o objs/Channel.o objs/Input.o objs/main.o objs/colorCout.o objs/sendServerReply.o -o ircserv
 make: Leaving directory `/Users/ChelseyLeonia/Desktop/ft_irc'
  

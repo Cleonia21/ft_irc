@@ -139,7 +139,11 @@ std::string User::getMask( void ) const
 }
 
 void User::setPassword( std::string password ) { _password = password; }
-void User::setNick( std::string nick ) { _nick = nick; }
+void User::setNick( std::string nick )
+{
+	_nick = nick;
+	std::transform(_nick.begin(), _nick.end(), _nick.begin(), tolower);
+}
 void User::setHostName( std::string hostName ) { _hostName = hostName; }
 void User::setUserName( std::string userName) { _userName = userName; }
 void User::setRealName( std::string realName) { _realName = realName; }

@@ -113,14 +113,8 @@ int sendServerReply (const User &user, int code,
 		case ERR_USERSDONTMATCH:
 			reply += ":Cant change mode for other users\n";
 			break;
-		case RPL_CHANNELMODEIS:
-			reply += arg1 + " " + arg2 + " " + arg3 + "\n";
-			break;
 		case ERR_UMODEUNKNOWNFLAG:
 			reply += ":Unknown MODE flag\n";
-			break;
-		case RPL_UMODEIS:
-			reply += ":" + arg1 + "\n";
 			break;
 
 
@@ -197,6 +191,12 @@ int sendServerReply (const User &user, int code,
 			break;
 		case RPL_LISTEND:
 			reply += "End of /LIST\n";
+			break;
+		case RPL_UMODEIS:
+			reply = ":" + arg1 + " " + arg2 + " " + arg3 + " " + arg4 + "\n";
+			break;
+		case RPL_CHANNELMODEIS:
+			reply = ":" + arg1 + " " + arg2 + " " + arg3 + " " + arg4 + "\n";
 			break;
 		default:
 			reply += "UNKNOWN REPLY\n";

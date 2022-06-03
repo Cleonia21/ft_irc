@@ -159,7 +159,6 @@ bool Channel::isEmpty(void) const
 
 const std::string& Channel::getName() const { return _name; }
 
-
 void	Channel::sendNotification(const std::string &msg, const User &user) const
 {
 	std::string message;
@@ -352,12 +351,3 @@ std::ostream	&operator<<( std::ostream &ostr, const Channel &instance )
 
 	return (ostr);
 }
-
-/*
-   CHL_PRIVATE	=       0b000001,
-   CHL_SECRET =        0b000010,
-   CHL_MODERATED =     0b000100,
-   CHL_INVITEONLY =    0b001000,
-   CHL_TOPICSET =      0b010000,
-   CHL_NOMSGOUT =      0b100000
-   */

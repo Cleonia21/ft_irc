@@ -184,10 +184,9 @@ int Server::part(User &user, Input &input) {
 	if (input.getParams().size() < 1)
 		sendServerReply(user, ERR_NEEDMOREPARAMS, "PART");
 	else {
-
 		std::queue<std::string>	channels = User::split(input.getParams()[0], ',', false);
-		while (!channels.empty()) {
-
+		while (!channels.empty())
+		{
 			if (!containsChannel(channels.front()))
 				sendServerReply(user, ERR_NOSUCHCHANNEL, channels.front());
 			else if (!user.isChannelMember(channels.front()))
@@ -225,7 +224,6 @@ bool checkModeFlags(std::string object, std::string _flags)
 			return false;
 	return true;
 }
-
 
 int Server::mode(User &user, Input &input)
 {
@@ -407,11 +405,7 @@ int Server::mode(User &user, Input &input)
 					channel->removePass();
 			}
 		}
-
-		if (input.getParams().size() == 3)
-			return sendServerReply(user, RPL_CHANNELMODEIS, object, flags, input.getParams()[2]);
-		else
-			return sendServerReply(user, RPL_CHANNELMODEIS, object, flags);
+		return sendServerReply(user, RPL_CHANNELMODEIS, user.getMask(), input.getCommand(), object, flags);
 	}
 	else
 	{
@@ -443,7 +437,7 @@ int Server::mode(User &user, Input &input)
 			else if (flag != USER_OPERATOR)
 				tmpUser->setFlags(flag);
 		}
-		return sendServerReply(user, RPL_UMODEIS, object, flags);
+		return sendServerReply(user, RPL_UMODEIS, user.getMask(), input.getCommand(), object, flags);
 	}
 	return (0);
 }
@@ -463,7 +457,6 @@ static int pm_or_notice(User &user, Input &input, int code, int silent, const st
 		return (-1);
 	return (sendServerReply(user, code, name));
 }
-
 
 int Server::sendPM(User &user, Input &input, int silent)
 {
@@ -721,7 +714,6 @@ int Server::kill(User &user, Input &input)
 	disconnectUser(*userToKill, SERVER_KILL);
 	return (0);
 }
-
 
 int Server::invite(User &user, Input &input) {
 
