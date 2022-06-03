@@ -308,7 +308,8 @@ void Channel::inviteToChannel(const User &user, const User &userToInvite) {
 		sendServerReply(user, ERR_CHANOPRIVSNEEDED, _name);
 	else
 	{
-		_inviteesList.push_back(&userToInvite);
+		if (!isInvited(userToInvite))
+			_inviteesList.push_back(&userToInvite);
 		userToInvite.sendMessage(":" + user.getMask() + " INVITE " + userToInvite.getNick() + " :" + _name);
 		sendServerReply(user, RPL_INVITING, _name, userToInvite.getNick());
 	}
