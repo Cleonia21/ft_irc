@@ -80,7 +80,7 @@ void Server::sendWelcome(const User &user) const
 	sendServerReply(user, RPL_WELCOME, user.getNick(), user.getUserName(), user.getHostName());
 	sendServerReply(user, RPL_YOURHOST, ircName, version);
 	sendServerReply(user, RPL_CREATED, date);
-	sendServerReply(user, RPL_MYINFO, ircName, version, "i", "biklmnopstv");
+	sendServerReply(user, RPL_MYINFO, ircName, version, "iosw", "biklmnopstv");
 }
 
 void Server::sendMOTD(const User &user) const
@@ -226,12 +226,87 @@ bool checkModeFlags(std::string object, std::string _flags)
 	return true;
 }
 
+
 int Server::mode(User &user, Input &input)
 {
-	User *tmpUser;
-
-	if (input.getParams().size() < 2)
+	if (input.getParams().size() < 1)
 		return sendServerReply(user, ERR_NEEDMOREPARAMS, input.getCommand());
+
+	if (input.getParams().size() < 2) //check MODE for user/channel
+	{
+		std::string target = input.getParams()[0];
+		std::string keys = "+";
+		if (target[0] == '#' || target[0] == '&') //channel
+		{
+			Channel *channel;
+			try { channel = _channels.at(target); } //find channel, if not - error
+			catch (const std::exception &e) { return sendServerReply(user, ERR_NOSUCHCHANNEL, target); }
+
+			std::queue<std::string> argsToKeys;
+			std::string args;
+			unsigned char flag = channel->getFlags();
+			//iklmnpst
+			if (flag & CHL_INVITEONLY)
+				keys += "i";
+			if (flag & CHL_PASSWORDED)
+			{
+				keys += "k";
+				argsToKeys.push(channel->getPass());
+			}
+			if (channel->getLimit() != -1)
+			{
+				keys += "l";
+				std::stringstream ss;
+				ss << channel->getLimit();
+				argsToKeys.push(ss.str());
+			}
+			if (flag & CHL_MODERATED)
+				keys += "m";
+			if (flag & CHL_NOMSGOUT)
+				keys += "n";
+			if (flag & CHL_PRIVATE)
+				keys += "p";
+			if (flag & CHL_SECRET)
+				keys += "s";
+			if (flag & CHL_TOPICSET)
+				keys += "t";
+
+			while (argsToKeys.size())
+			{
+				if (args.empty())
+					args = argsToKeys.front();
+				else
+					args += " " + argsToKeys.front();
+				argsToKeys.pop();
+			}
+			sendServerReply(user, RPL_CHANNELMODEIS, keys, args);
+		}
+		else
+		{
+			if (user.getNick() != target)
+				return sendServerReply(user, ERR_USERSDONTMATCH);
+			User *tmpUser = this->searchUser(SRCH_NICK, target);
+			if (!tmpUser)
+				return sendServerReply(user, ERR_NOSUCHNICK, target);
+
+			unsigned char flag = tmpUser->getFlags();
+			//iosw
+			if (flag & USER_INVISIBLE)
+				keys += "i";
+			if (flag & USER_OPERATOR)
+				keys += "o";
+			if (flag & USER_GETNOTICE)
+				keys += "s";
+			if (flag & USER_GETWALLOPS)
+				keys += "w";
+			
+			sendServerReply(user, RPL_UMODEIS, keys);
+		}
+		return (0);
+	}
+	
+	//Change MODE for user/channel
+	User *tmpUser;
 
 	std::string object = input.getParams()[0];
 	std::string flags = input.getParams()[1];
@@ -310,9 +385,9 @@ int Server::mode(User &user, Input &input)
 				if (!tmpUser)
 					return sendServerReply(user, ERR_NOSUCHNICK, argument);
 				if (flags[0] == '-')
-					channel->addInBan(*tmpUser);
-				else
 					channel->removeFromBan(*tmpUser);
+				else
+					channel->addInBan(*tmpUser);
 			}
 			if (flags[i] == 'v')
 			{
@@ -320,9 +395,9 @@ int Server::mode(User &user, Input &input)
 				if (!tmpUser)
 					return sendServerReply(user, ERR_NOSUCHNICK, argument);
 				if (flags[0] == '-')
-					channel->addInSpeakers(*tmpUser);
-				else
 					channel->removeInSpeakers(*tmpUser);
+				else
+					channel->addInSpeakers(*tmpUser);
 			}
 			if (flags[i] == 'k')
 			{
@@ -370,9 +445,10 @@ int Server::mode(User &user, Input &input)
 		}
 		return sendServerReply(user, RPL_UMODEIS, object, flags);
 	}
-
 	return (0);
 }
+
+
 
 static int pm_or_notice(User &user, Input &input, int code, int silent)
 {
@@ -432,7 +508,7 @@ int Server::sendPM(User &user, Input &input, int silent)
 			//Если в верхние if не зашли (т.е. все правильно), то отправляем сообщение
 			if (!check)
 			{
-				std::string msg = input.getCommand() + " " + channel + " :" + input.getParams()[1] + "\n";
+				std::string msg = input.getCommand() + " " + channel + " :" + input.getParams()[1];
 				_channels[channel]->sendNotification(msg, user);
 			}
 		}
@@ -473,9 +549,7 @@ int Server::privmsg(User &user, Input &input)
 
 int Server::notice(User &user, Input &input)
 {
-	if (user.getFlags() & USER_GETNOTICE)
-		return sendPM(user, input, 1);
-	return (0);
+	return sendPM(user, input, 1);
 }
 
 int Server::topic(User &user, Input &input) {
@@ -672,3 +746,133 @@ int Server::invite(User &user, Input &input) {
 
     return 0;
 }
+
+
+//Тестовый нерабочий MODE, не удаляйте
+/* 
+	std::string target = input.getParams()[0];
+	std::string flags = input.getParams()[1];
+	if (target[0] == '#' || target[0] == '&') //channel
+	{
+		Channel *channel;
+		try { channel = _channels.at(target); }
+		catch (const std::exception &e) { return sendServerReply(user, ERR_NOSUCHCHANNEL, target); }
+		if (!channel->isOperator(user))
+			return sendServerReply(user, ERR_CHANOPRIVSNEEDED, channel->getName());
+
+		User *tmpUser;
+		unsigned short stateFlag = 0; //для сравнения с флагами канала и определения изменений
+		unsigned short usedFlags = 0; //если 0, то команды не использовались
+		unsigned int count = 0;
+		int negative = 0;
+		std::string flagStr = "+";
+		std::queue<std::string> argsToKeys;
+		//"iosw", "biklmnopstv"
+		for (int i = 0; i < flags.size(); i++)
+		{
+			switch (flags[i])
+			{
+				case '+':
+					if (flagStr[flagStr.size() - 1] == '+' || flagStr[flagStr.size() - 1] == '-')
+						flagStr[flagStr.size() - 1] = '+';
+					else
+						flagStr += "+";
+					negative = 0;
+					break;
+				case '-':
+					if (flagStr[flagStr.size() - 1] == '+' || flagStr[flagStr.size() - 1] == '-')
+						flagStr[flagStr.size() - 1] = '-';
+					else
+						flagStr += "-";
+					negative = 1;
+					break;
+				case 'b':
+					if (usedFlags & CFLAG_BAN)
+						break;
+					if (input.getParams().size() < 3 + count)
+					{
+						sendServerReply(user, ERR_NEEDMOREPARAMS, input.getCommand());
+						break;
+					}
+					tmpUser = this->searchUser(SRCH_NICK, input.getParams()[2 + count]);
+					if (!tmpUser)
+					{
+						sendServerReply(user, ERR_NOSUCHNICK, input.getParams()[2 + count]);
+						break;
+					}
+					// add/remove user from ban list
+					if (negative)
+						channel->removeFromBan(*tmpUser);
+					else
+						channel->addInBan(*tmpUser);
+					usedFlags |= CFLAG_BAN;
+					flagStr += "b";
+					argsToKeys.push(input.getParams()[2 + count]);
+					count++;
+					break;
+				case 'i':
+					if (usedFlags & CFLAG_INVITE)
+						break;
+					if (!negative)
+						stateFlag |= CFLAG_INVITE;
+					usedFlags |= CFLAG_INVITE;
+					break;
+
+				case 'k':
+					if (usedFlags & CFLAG_PASS)
+						break;
+					if (input.getParams().size() < 3 + count)
+					{
+						sendServerReply(user, ERR_NEEDMOREPARAMS, input.getCommand());
+						break;
+					}
+					argsToKeys.push(input.getParams()[2 + count]);
+
+					break;
+				case 'l':
+					if (usedFlags & CFLAG_LIMIT)
+						break;
+
+					break;
+				case 'm':
+					if (usedFlags & CFLAG_MODERATE)
+						break;
+
+					break;
+				case 'n':
+					if (usedFlags & CFLAG_NOMSGOUT)
+						break;
+
+					break;
+				case 'o':
+					if (usedFlags & CFLAG_OPERATOR)
+						break;
+
+					break;
+				case 'p':
+					if (usedFlags & CFLAG_PRIVATE)
+						break;
+
+					break;
+				case 's':
+					if (usedFlags & CFLAG_SECRET)
+						break;
+
+					break;
+				case 't':
+					if (usedFlags & CFLAG_TOPIC)
+						break;
+
+					break;
+				case 'v':
+					if (usedFlags & CFLAG_SPEAKER)
+						break;
+
+					break;
+				default: //Key not found
+					sendServerReply(user, ERR_UNKNOWNMODE, std::string(1, flags[i]));
+					break;
+			}
+		}
+	}
+*/

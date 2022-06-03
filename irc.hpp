@@ -16,6 +16,24 @@ enum e_search
 	SRCH_REALNAME
 };
 
+//"iosw", "biklmnopstv"
+/*
+enum Cflag_states {
+	CFLAG_BAN =			1,
+	CFLAG_INVITE =		2,
+	CFLAG_PASS =		4,
+	CFLAG_LIMIT =		8,
+	CFLAG_MODERATE =	16,
+	CFLAG_NOMSGOUT =	32,
+	CFLAG_OPERATOR =	64,
+	CFLAG_PRIVATE =		128,
+	CFLAG_SECRET =		256,
+	CFLAG_TOPIC =		512,
+	CFLAG_SPEAKER =		1024
+};
+*/
+
+
 enum e_errors
 {
 	ERR_ = 1,

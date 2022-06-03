@@ -128,6 +128,14 @@ bool Channel::isBanned(const User &user) const {
 	return false;
 }
 
+bool Channel::isSpeaker(const User &user) const {
+
+	for (int i = 0; i < _speakersList.size(); i++ )
+		if (_speakersList[i]->getNick() == user.getNick() )
+			return true;
+	return false;
+}
+
 bool Channel::isOperator(const User &user) const {
 	for (int i = 0; i < _operatorsList.size(); i++ )
 		if (_operatorsList[i]->getNick() == user.getNick() )
@@ -165,8 +173,11 @@ void	Channel::sendNotification(const std::string &msg, const User &user) const
 
 void Channel::disconnect(const User &user) {
 
-    deleteUser(user);
+	deleteUser(user);
 	deleteOperator(user);
+	deleteFromInviteesList(user);
+	removeFromBan(user);
+	removeInSpeakers(user);
 }
 
 void Channel::setTopic(const User &user, const std::string &topic) {
@@ -236,7 +247,8 @@ void	Channel::removeLimit(void)
 
 void	Channel::addInBan(const User &user)
 {
-	_banList.push_back(&user);
+	if (!isBanned(user))
+		_banList.push_back(&user);
 }
 
 void	Channel::removeFromBan(const User &user)
@@ -250,7 +262,8 @@ void	Channel::removeFromBan(const User &user)
 
 void	Channel::addInSpeakers(const User &user)
 {
-	_speakersList.push_back(&user);
+	if (!isSpeaker(user))
+		_speakersList.push_back(&user);
 }
 
 void	Channel::removeInSpeakers(const User &user)
@@ -270,6 +283,7 @@ void	Channel::setPass(const std::string pass)
 
 void    Channel::removePass( void )
 {
+	clearFlag(CHL_PASSWORDED);
 	_password.clear();
 }
 
@@ -290,14 +304,14 @@ void	Channel::clearFlag(unsigned char flag)
 
 void Channel::inviteToChannel(const User &user, const User &userToInvite) {
 
-    if (_flags & CHL_INVITEONLY && !isOperator(user))
-        sendServerReply(user, ERR_CHANOPRIVSNEEDED, _name);
-    else
-    {
-        _inviteesList.push_back(&userToInvite);
-        userToInvite.sendMessage(":" + user.getMask() + " INVITE " + userToInvite.getNick() + " :" + _name + "\n");
-        sendServerReply(user, RPL_INVITING, _name, userToInvite.getNick());
-    }
+	if (_flags & CHL_INVITEONLY && !isOperator(user))
+		sendServerReply(user, ERR_CHANOPRIVSNEEDED, _name);
+	else
+	{
+		_inviteesList.push_back(&userToInvite);
+		userToInvite.sendMessage(":" + user.getMask() + " INVITE " + userToInvite.getNick() + " :" + _name);
+		sendServerReply(user, RPL_INVITING, _name, userToInvite.getNick());
+	}
 }
 
 const std::vector<const User *> &Channel::getUsers() const { return (this->_usersList); }

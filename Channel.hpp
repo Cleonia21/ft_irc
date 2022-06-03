@@ -40,6 +40,7 @@ class Channel
 		static bool         isChannelNameCorrect(const std::string &name);
 		bool                isInvited(const User &user) const;
 		bool	        	isBanned(const User &user) const;
+		bool	        	isSpeaker(const User &user) const;
 		bool		        isOperator(const User &user) const;
 		bool		        isChannelUser(const std::string &nick) const;
 		bool				isEmpty(void) const; //If channel is empty of users or not

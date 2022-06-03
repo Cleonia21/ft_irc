@@ -44,11 +44,24 @@ void User::processMessage(void)
 		_messages = split(data, '\n');
 }
 
+static int isNotice(std::string &message)
+{
+	size_t begin = message.find(" ");
+	begin++;
+	size_t end = message.find(" ", begin);
+	std::string command(message.begin() + begin, message.begin() + end);
+	if (command == "NOTICE")
+		return (1);
+	return (0);
+}
+
 void User::sendMessage(std::string message) const
 {
 	message += "\n";
+	
 	if (message.size() > 0)
-		send(_socketfd, message.c_str(), message.size(), 0);
+		if (!isNotice(message) || (_flags & USER_GETNOTICE))
+			send(_socketfd, message.c_str(), message.size(), 0);
 }
 
 std::queue<std::string> User::split(std::string &data, char separator)
