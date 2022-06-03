@@ -11,6 +11,7 @@ Server::Server(std::string server_port, std::string server_password) :
     _commands["KICK"] = 	&Server::kick;
     _commands["PART"] = 	&Server::part;
 	_commands["OPER"] = 	&Server::oper;
+	_commands["KILL"] = 	&Server::kill;
 	_commands["LIST"] = 	&Server::list;
 	_commands["QUIT"] = 	&Server::quit;
 	_commands["TOPIC"] = 	&Server::topic;
@@ -18,6 +19,7 @@ Server::Server(std::string server_port, std::string server_password) :
 	_commands["NOTICE"] = 	&Server::notice;
 	_commands["PRIVMSG"] = 	&Server::privmsg;
     _commands["INVITE"] = 	&Server::invite;
+	_commands["PING"] =		&Server::ping;
 	_motd.push_back("Welcome to IRCserv!");
 	_motd.push_back("Be good!");
 	memset(&hints, 0, sizeof(hints)); //making sure addrinfo is empty

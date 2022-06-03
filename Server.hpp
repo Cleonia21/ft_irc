@@ -83,6 +83,7 @@ class Server
         int list(User &user, Input &input);
         int quit(User &user, Input &input);
         int invite(User &user, Input &input);
+        int ping(User &user, Input &input);
 
 		bool printer(Input &input);
 
