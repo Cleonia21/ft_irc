@@ -748,6 +748,17 @@ int Server::invite(User &user, Input &input) {
     return 0;
 }
 
+int Server::ping(User &user, Input &input)
+{
+	if (input.getParams().size() == 0)
+		return (sendServerReply(user, ERR_NOORIGIN));
+	if (input.getParams().size() == 1)
+		user.sendMessage(":" + std::string(ircName) + " PONG :" + input.getParams()[0]);
+	else
+		user.sendMessage(":" + std::string(ircName) + " PONG :" + input.getParams()[1]);
+	return 0;
+}
+
 
 //Тестовый нерабочий MODE, не удаляйте
 /* 

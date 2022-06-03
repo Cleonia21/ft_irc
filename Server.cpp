@@ -19,6 +19,7 @@ Server::Server(std::string server_port, std::string server_password) :
 	_commands["NOTICE"] = 	&Server::notice;
 	_commands["PRIVMSG"] = 	&Server::privmsg;
     _commands["INVITE"] = 	&Server::invite;
+	_commands["PING"] =		&Server::ping;
 	_motd.push_back("Welcome to IRCserv!");
 	_motd.push_back("Be good!");
 	memset(&hints, 0, sizeof(hints)); //making sure addrinfo is empty
