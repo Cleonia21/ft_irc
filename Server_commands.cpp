@@ -170,7 +170,7 @@ int	Server::kick(User &user, Input &input)
 		user.sendMessage(":" + user.getMask() + " " + message);
 		channel->sendNotification(message, user);
 		User *userToBeKicked;
-		for (int i = 0; i < _users.size(); i++)
+		for (size_t i = 0; i < _users.size(); i++)
 			if (_users[i]->getNick() == nickName)
 				userToBeKicked = _users[i];
 		channel->disconnect(*(userToBeKicked));
@@ -416,7 +416,7 @@ int Server::mode(User &user, Input &input)
 	}
 	else
 	{
-		if (user.getNick() != object && !(user.getFlags() & USER_OPERATOR))
+		if (user.getNick() != object)
 			return sendServerReply(user, ERR_USERSDONTMATCH);
 		tmpUser = this->searchUser(SRCH_NICK, object);
 		if (!tmpUser)

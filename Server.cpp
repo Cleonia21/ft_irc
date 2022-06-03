@@ -142,7 +142,7 @@ void Server::acceptConnection(void)
 		std::perror("Poll failed");
 		exit(EXIT_FAILURE);
 	}
-	for (int i = 0; i < pollfds.size(); i++)
+	for (size_t i = 0; i < pollfds.size(); i++)
 	{
 		//Check if sockets are ready to read
 		if (pollfds[i].revents & POLLIN) //Got incoming data
@@ -316,7 +316,7 @@ User *Server::searchUser(int key, std::string znch)
 		redCout("Invalid key in searchUser");
 		return (NULL);
 	}
-	for (int i = 0; i != _users.size(); i++)
+	for (size_t i = 0; i != _users.size(); i++)
 	{
 		if ((_users[i]->*geter)() == znch)
 			return (_users[i]);

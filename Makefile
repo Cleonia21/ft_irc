@@ -1,6 +1,6 @@
 NAME = ircserv
 INCLUDE = include/
-CPP = c++ -g #-Wall -Wextra -Werror -std=c++98
+CPP = c++ -g -Wall -Wextra -Werror -std=c++98
 SRCS =		Server.cpp \
 			Server_commands.cpp \
 			User.cpp \
