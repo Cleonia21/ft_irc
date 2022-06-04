@@ -1,6 +1,6 @@
 NAME = ircserv
 INCLUDE = include/
-CPP = c++ -g -Wall -Wextra -Werror -std=c++98
+CPP = c++ -g #-Wall -Wextra -Werror -std=c++98
 SRCS =		Server.cpp \
 			Server_commands.cpp \
 			User.cpp \
@@ -16,7 +16,9 @@ MEBOT = mebot
 B_SRCS =	main.cpp \
 			Bot.cpp \
 			Input.cpp \
-			Symbol.cpp
+			Symbol.cpp \
+			Parser.cpp \
+			Calculator.cpp
 BOT_DIR = bot
 BOT_SRCS = $(addprefix $(BOT_DIR)/, $(B_SRCS))
 BOT_OBJ_DIR = $(OBJ_DIR)/bot

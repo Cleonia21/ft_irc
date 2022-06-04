@@ -22,21 +22,22 @@ void Bot::getAbc(void)
 
 	std::ifstream	fin("bot/ABC.bot");
 	if (!fin)
-		std::cout << "error in get Abc" << std::endl;
-	
-	unsigned char c = 0;
-	while (std::getline(fin, line))
+		std::cout << "error to open ABS.bot file" << std::endl;
+	else
 	{
-		if (line[0] == '-')
+		unsigned char c = 0;
+		while (std::getline(fin, line))
 		{
-			_abc[c] = Symbol(symbol);
-			symbol.clear();
-			c = line[1];
-			std::cout << c << std::endl;
-		}
-		else
-			symbol.push_back(line);
-	}	
+			if (line[0] == '-')
+			{
+				_abc[c] = Symbol(symbol);
+				symbol.clear();
+				c = line[1];
+			}
+			else
+				symbol.push_back(line);
+		}	
+	}
 }
 
 Bot::~Bot(void)
@@ -226,7 +227,17 @@ void Bot::execute(void)
 			{
 				std::string msg;
 				std::vector<std::string> command = parsePrivmsg(cmd.getParams()[1]);
-				if (command.size() != 2)
+				if (command[0] == "CALCULATE")
+				{
+					std::string tmp;
+					std::vector<std::string>::iterator i;
+					for (i = command.begin() + 1; i != command.end(); i++)
+						tmp += *i;
+					Calculator calculator(tmp);
+					msg = "NOTICE " + cmd.getPrefix() + " :  " + tmp + "=" + calculator.getResult() + " \n";
+					_pendingOutMessages.push(msg);
+				}
+				else if (command.size() != 2)
 				{
 					msg = "NOTICE " + cmd.getPrefix() + " :Usage <shape> <char>\n";
 					_pendingOutMessages.push(msg);
@@ -241,7 +252,6 @@ void Bot::execute(void)
 					for (int i = 0; command[1][i]; i++)
 					{
 						c = command[1][i];
-						std::cout << c << std::endl;
 						symbol = _abc[c].getSymbol();
 						for (std::vector<std::string>::iterator j = symbol.begin(); j != symbol.end(); ++j)
 						{
@@ -281,7 +291,7 @@ std::vector<std::string> Bot::parsePrivmsg(std::string msg)
 {
 	std::cout << msg << std::endl;
 	std::vector<std::string> command;
-	int i = 0;
+	size_t i = 0;
 	while (msg.size())
 	{
 		for (; i < msg.length(); i++)

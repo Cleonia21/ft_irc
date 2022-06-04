@@ -17,6 +17,7 @@
 #include "Symbol.hpp"
 #include <fstream>
 #include <iomanip>
+#include "Calculator.hpp"
 
 class Bot
 {
