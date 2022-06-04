@@ -5,8 +5,7 @@
 // arg* - необходимые аргументы для ответа/ошибки
 int sendServerReply (const User &user, int code,
 		const std::string &arg1, const std::string &arg2,
-		const std::string &arg3, const std::string &arg4,
-		const std::string &arg5)
+		const std::string &arg3, const std::string &arg4)
 {
 	std::stringstream stream;
 	std::string reply;
@@ -193,11 +192,11 @@ int sendServerReply (const User &user, int code,
 		case RPL_LISTEND:
 			reply += "End of /LIST\n";
 			break;
-		case RPL_UMODEIS:
-			reply = ":" + arg1 + " " + arg2 + " " + arg3 + " " + arg4 + "\n";
-			break;
 		case RPL_CHANNELMODEIS:
-			reply = ":" + arg1 + " " + arg2 + " " + arg3 + " " + arg4 + " " + arg5 + "\n";
+			reply += arg1 + " " + arg2 + " " + arg3 + "\n";
+			break;
+		case RPL_UMODEIS:
+			reply += ":" + arg1 + "\n";
 			break;
 		default:
 			reply += "UNKNOWN REPLY\n";

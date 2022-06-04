@@ -86,6 +86,7 @@ std::queue<std::string> User::split(std::string &data, char separator)
 
 std::queue<std::string> User::split(const std::string &data, char separator, int no_separator)
 {
+	(void) no_separator;
 	std::queue<std::string> new_messages;
 	std::string::const_iterator i = data.begin();
 	while (i != data.end())
@@ -185,7 +186,7 @@ void User::addNewChannel(const Channel &channel)
 
 bool User::isChannelMember(const std::string& channelNameToFind) const {
 
-    for (int i = 0; i < _channels.size(); i++)
+    for (size_t i = 0; i < _channels.size(); i++)
         if (_channels[i]->getName() == channelNameToFind)
             return true;
     return false;
@@ -194,7 +195,7 @@ bool User::isChannelMember(const std::string& channelNameToFind) const {
 void User::leaveChannel(const std::string &channelName) {
 
     // проверьете сначала isChannelMember, если будете пользоваться
-    for (int i = 0; i < _channels.size(); i++)
+    for (size_t i = 0; i < _channels.size(); i++)
         if (_channels[i]->getName() == channelName)
             _channels.erase(std::next(_channels.begin(),i)); //next is iterator (begin + i)
 }

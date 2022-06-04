@@ -81,7 +81,7 @@ void Server::sendWelcome(const User &user) const
 	sendServerReply(user, RPL_YOURHOST, ircName, version);
 	sendServerReply(user, RPL_CREATED, date);
 	sendServerReply(user, RPL_MYINFO, ircName, version, "iosw", "biklmnopstv");
-	sendServerReply(user, RPL_UMODEIS, user.getMask(), "MODE", user.getNick(), "+s");
+	user.sendMessage(":" + user.getMask() + " MODE " + user.getNick() + " +s");
 }
 
 void Server::sendMOTD(const User &user) const
@@ -210,6 +210,8 @@ static bool checkModeFlags(std::string object, std::string _flags)
 		return false;
 	const char *flags = _flags.c_str() + 1; // пропускаем +-
 	const char *dict;
+	if (_flags.size() == 1)
+		return false;
 	if (_flags.size() == 2 && (object[0] == '#' || object[0] == '&'))
 		dict = "opsitnmlbvk";
 	else if (object[0] == '#' || object[0] == '&')
@@ -278,9 +280,7 @@ int Server::mode(User &user, Input &input)
 					args += " " + argsToKeys.front();
 				argsToKeys.pop();
 			}
-			std::stringstream ss;
-			ss << RPL_CHANNELMODEIS;
-			sendServerReply(user, RPL_CHANNELMODEIS, std::string(ircName), ss.str(), user.getNick() + " " + target, keys, args);
+			sendServerReply(user, RPL_CHANNELMODEIS, target, keys, args);
 		}
 		else
 		{
@@ -301,9 +301,7 @@ int Server::mode(User &user, Input &input)
 			if (flag & USER_GETWALLOPS)
 				keys += "w";
 			
-			std::stringstream ss;
-			ss << RPL_UMODEIS;
-			sendServerReply(user, RPL_UMODEIS, std::string(ircName), ss.str(), user.getNick(), keys);
+			sendServerReply(user, RPL_UMODEIS, keys);
 		}
 		return (0);
 	}
@@ -316,13 +314,15 @@ int Server::mode(User &user, Input &input)
 
 	if (!checkModeFlags(object, flags)) //(x < 0 ? x : (x >= 0)
 	{
+		if (flags.size() == 1 && (flags[0] == '+' || flags[0] == '-'))
+			return (-1);
 		if (object[0] == '#' || object[0] == '&')
 			return sendServerReply(user, ERR_UNKNOWNMODE, flags);
 		else
 			return sendServerReply(user, ERR_UMODEUNKNOWNFLAG);
 	}
 
-	if (object[0] == '#' || object[0] == '&') // chanel
+	if (object[0] == '#' || object[0] == '&') // channel
 	{
 		Channel *channel;
 		try { channel = _channels.at(object); }
@@ -330,6 +330,7 @@ int Server::mode(User &user, Input &input)
 		if (!channel->isOperator(user))
 			return sendServerReply(user, ERR_CHANOPRIVSNEEDED, channel->getName());
 
+		std::string argument;
 		for (int i = 1; flags[i] != '\0'; i++)
 		{
 			unsigned char flag = 0;
@@ -361,10 +362,10 @@ int Server::mode(User &user, Input &input)
 			if (flag != 0)
 				continue ;
 
-			if (flag == 0 && input.getParams().size() != 3)
+			if (input.getParams().size() < 3)
 				return sendServerReply(user, ERR_NEEDMOREPARAMS, input.getCommand());
 
-			std::string argument = input.getParams()[2];
+			argument = input.getParams()[2];
 			if (flags[i] == 'o')
 			{
 				tmpUser = this->searchUser(SRCH_NICK, argument);
@@ -413,7 +414,12 @@ int Server::mode(User &user, Input &input)
 					channel->removePass();
 			}
 		}
-		return sendServerReply(user, RPL_CHANNELMODEIS, user.getMask(), input.getCommand(), object, flags);
+		std::string msg = "MODE " + object + " " + flags;
+		if (argument.size())
+			msg += " " + argument;
+		user.sendMessage(":" + user.getMask() + " " + msg);
+		channel->sendNotification(msg, user);
+		return (0);
 	}
 	else
 	{
@@ -445,7 +451,9 @@ int Server::mode(User &user, Input &input)
 			else if (flag != USER_OPERATOR)
 				tmpUser->setFlags(flag);
 		}
-		return sendServerReply(user, RPL_UMODEIS, user.getMask(), input.getCommand(), object, flags);
+		std::string msg = "MODE " + object + " " + flags;
+		user.sendMessage(":" + user.getMask() + " " + msg);
+		return (0);
 	}
 	return (0);
 }
@@ -455,11 +463,12 @@ static int pm_or_notice(User &user, Input &input, int code, int silent)
 {
 	if (silent)
 		return (-1);
-	return (sendServerReply(user, code, input.getCommand()));
+	return (sendServerReply(user, code, input.getParams()[0]));
 }
 
 static int pm_or_notice(User &user, Input &input, int code, int silent, const std::string &name)
 {
+	(void) input;
 	if (silent)
 		return (-1);
 	return (sendServerReply(user, code, name));
@@ -497,7 +506,7 @@ int Server::sendPM(User &user, Input &input, int silent)
 			{
 				if (_channels[channel]->getFlags() & CHL_NOMSGOUT) //Не разрешены внешние сообщения
 					check = pm_or_notice(user, input, ERR_CANNOTSENDTOCHAN, silent);
-				if (_channels[channel]->getFlags() & CHL_MODERATED) //Нельзя писать на модерируемый
+				else if (_channels[channel]->getFlags() & CHL_MODERATED) //Нельзя писать на модерируемый
 					check = pm_or_notice(user, input, ERR_CANNOTSENDTOCHAN, silent);
 			}
 			//Юзер на канале, остается узнать есть ли права писать, если канал модерируется
@@ -601,7 +610,7 @@ int Server::names(User &user, Input &input)
 					channelUsers.insert(usersOnChannel[i]->getNick());
 			}
 		}
-		//Redacting channel users from all users
+		//Removing channel users from all users
 		while (channelUsers.size())
 		{
 			unboundUsers.erase(*channelUsers.begin());

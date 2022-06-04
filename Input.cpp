@@ -27,7 +27,7 @@ Input::Input(std::string userInput)
 
 void Input::trimSubStr(std::string *out, std::string *in)
 {
-	int i = 0;
+	size_t i = 0;
 	for (; i < (*out).length(); i++)
 		if ((*out)[i] == ' ')
 			break ;
@@ -40,7 +40,7 @@ void Input::trimSubStr(std::string *out, std::string *in)
 
 std::string Input::trimSpase(std::string str)
 {
-	int i, j;
+	size_t i, j;
 	for (i = 0; i < str.length(); i++)
 		if (str[i] != ' ')
 			break ;
@@ -73,7 +73,7 @@ std::ostream	&operator<<( std::ostream &ostr, Input &instance )
 			<< instance.getCommand() << "}" << std::endl
 			<< "param list: ";
 	std::vector<std::string> params = instance.getParams();
-	for (int i = 0; i < params.size(); i++)
+	for (size_t i = 0; i < params.size(); i++)
 		ostr << "\"" << params[i] << "\" ";
 	return (ostr);
 }
