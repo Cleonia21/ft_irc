@@ -34,16 +34,16 @@ void	Channel::sendChannelUsers(const User &user) {
 	std::vector<const User *>::const_iterator	ite = _usersList.end();
 	while (itb != ite)
 	{
-		if ((*itb)->getFlags() & USER_INVISIBLE)
+		if (((*itb)->getFlags() & USER_INVISIBLE) && !isChannelUser(user.getNick()))
 		{
 			++itb;
 			continue ;
 		}
 		const User	*tmp = *itb;
-		if (isOperator(*tmp))
+		if (isOperator(*tmp)) // Operators
 			usersList += "@";
-//		else if (isChannelUser((*tmp).getNick())) // '+' только для спикеров, которых пока нет
-//			usersList += "+";
+		else if (isSpeaker(*tmp)) // Speakers
+			usersList += "+";
 		usersList += tmp->getNick();
 		++itb;
 		if (itb != ite)
@@ -54,7 +54,8 @@ void	Channel::sendChannelUsers(const User &user) {
 		prefixToName = "@ ";
 	else if (_flags & CHL_PRIVATE)
 		prefixToName = "* ";
-	sendServerReply(user, RPL_NAMREPLY, prefixToName + _name, usersList);
+	if (usersList.size())
+		sendServerReply(user, RPL_NAMREPLY, prefixToName + _name, usersList);
 }
 
 void	Channel::sendChannelInfo(const User &user)
@@ -107,14 +108,14 @@ int	Channel::connect(const User &user, const std::string &key) {
 
 void Channel::deleteFromInviteesList(const User &user) {
 
-    for (int i = 0; i < _inviteesList.size(); i++)
+    for (size_t i = 0; i < _inviteesList.size(); i++)
         if (_inviteesList[i] == &user)
             _inviteesList.erase(_inviteesList.begin() + i);
 }
 
 bool Channel::isInvited(const User &user) const {
 
-	for (int i = 0; i < _inviteesList.size(); i++)
+	for (size_t i = 0; i < _inviteesList.size(); i++)
 		if (_inviteesList[i]->getNick() == user.getNick())
 			return true;
 	return false;
@@ -122,7 +123,7 @@ bool Channel::isInvited(const User &user) const {
 
 bool Channel::isBanned(const User &user) const {
 
-	for (int i = 0; i < _banList.size(); i++ )
+	for (size_t i = 0; i < _banList.size(); i++ )
 		if (_banList[i]->getNick() == user.getNick() )
 			return true;
 	return false;
@@ -130,21 +131,21 @@ bool Channel::isBanned(const User &user) const {
 
 bool Channel::isSpeaker(const User &user) const {
 
-	for (int i = 0; i < _speakersList.size(); i++ )
+	for (size_t i = 0; i < _speakersList.size(); i++ )
 		if (_speakersList[i]->getNick() == user.getNick() )
 			return true;
 	return false;
 }
 
 bool Channel::isOperator(const User &user) const {
-	for (int i = 0; i < _operatorsList.size(); i++ )
+	for (size_t i = 0; i < _operatorsList.size(); i++ )
 		if (_operatorsList[i]->getNick() == user.getNick() )
 			return true;
 	return false;
 }
 
 bool Channel::isChannelUser(const std::string &nick) const {
-	for (int i = 0; i < _usersList.size(); i++ )
+	for (size_t i = 0; i < _usersList.size(); i++ )
 		if (_usersList[i]->getNick() == nick)
 			return true;
 	return false;
@@ -194,14 +195,14 @@ void Channel::setTopic(const User &user, const std::string &topic) {
 
 void Channel::fillInUsers(std::set<const User *> &uniq) const
 {
-	for (int i = 0; i < _usersList.size(); i++)
+	for (size_t i = 0; i < _usersList.size(); i++)
 		uniq.insert(_usersList[i]);
 }
 
 void Channel::deleteOperator(const User &user) {
 
 	if (isOperator(user)) {
-		int	i;
+		size_t i;
 		for (i = 0; i < _operatorsList.size(); i++)
 			if (_operatorsList[i] == &user)
 				break;
@@ -217,7 +218,7 @@ void Channel::deleteOperator(const User &user) {
 
 void Channel::deleteUser(const User &user) {
 
-	for (int i = 0; i < _usersList.size(); i++)
+	for (size_t i = 0; i < _usersList.size(); i++)
 	{
 		if (_usersList[i] == &user) {
     	    _usersList.erase(_usersList.begin() + i);
@@ -228,10 +229,8 @@ void Channel::deleteUser(const User &user) {
 
 void    Channel::addOperator(const User &user)
 {
-	_operatorsList.push_back(&user);
-	std::string msg = "MODE " + _name + " +o :" + _usersList[0]->getNick();
-	user.sendMessage(":" + user.getMask() + " " + msg);
-	sendNotification(msg, user);
+	if (!isOperator(user))
+		_operatorsList.push_back(&user);
 }
 
 void    Channel::setLimit(int limit) {

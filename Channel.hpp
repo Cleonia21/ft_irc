@@ -28,9 +28,9 @@ class Channel
 		std::vector<const User *>			_speakersList;
 		std::vector<const User *>			_banList;
 		std::vector<const User *>			_inviteesList;
-		unsigned char			    		_flags;
 		std::string							_password;
-		int		            	    		_limit;
+		size_t	            	    		_limit;
+		unsigned char			    		_flags;
 		std::string							_topic;
 
 	public:
