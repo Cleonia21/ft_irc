@@ -65,6 +65,7 @@ class Channel
 		void				sendChannelInfo(const User &user);
         void				sendTopic(const User &user);
         void                sendJoinSuccessResponce(const User &user);
+		void				sendBans(const User &user);
 		unsigned char		getFlags() const;
         void				setTopic(const User &user, const std::string &topic);
 		void				fillInUsers(std::set<const User *> &uniq) const; //добавить юзеров их всех каналов
@@ -73,7 +74,6 @@ class Channel
 		//служебные для вывода
 		const std::vector<const User *> &getUsers() const;
 		const std::vector<const User *> &getOperators() const;
-		const std::vector<const User *> &getBans() const;
 		std::string	getPass() const;
 		int	getLimit() const;
 

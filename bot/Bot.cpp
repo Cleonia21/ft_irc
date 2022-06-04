@@ -7,6 +7,7 @@ Bot::Bot(std::string port, std::string password)
 	_rawName = "mebot";
 	_nameCount = 0;
 	_authenticated = 0;
+	_nofile = 0;
 	memset(&hints, 0, sizeof(hints)); //making sure addrinfo is empty
 	this->getAbc();
 }
@@ -22,7 +23,10 @@ void Bot::getAbc(void)
 
 	std::ifstream	fin("bot/ABC.bot");
 	if (!fin)
+	{
 		std::cout << "error to open ABS.bot file" << std::endl;
+		_nofile = 1;
+	}
 	else
 	{
 		unsigned char c = 0;
@@ -239,9 +243,7 @@ void Bot::execute(void)
 				}
 				else if (command.size() != 2)
 				{
-					msg = "NOTICE " + cmd.getPrefix() + " :Usage <shape> <char>\n";
-					_pendingOutMessages.push(msg);
-					msg = "NOTICE " + cmd.getPrefix() + " :shapes: <DIAMOND>\n";
+					msg = "NOTICE " + cmd.getPrefix() + " :Commands: <CALCULATE> <PRINT> <DIAMOND>\n";
 					_pendingOutMessages.push(msg);
 				}
 				else if (command[0] == "PRINT")
@@ -249,17 +251,27 @@ void Bot::execute(void)
 					std::vector<std::string> symbol;
 					unsigned char c;
 
-					for (int i = 0; command[1][i]; i++)
+					if (_nofile)
 					{
-						c = command[1][i];
-						symbol = _abc[c].getSymbol();
-						for (std::vector<std::string>::iterator j = symbol.begin(); j != symbol.end(); ++j)
+						msg = "NOTICE " + cmd.getPrefix() + " :<PRINT>: unavailable\n";
+						_pendingOutMessages.push(msg);
+					}
+					else
+					{
+						for (int i = 0; command[1][i]; i++)
 						{
-							msg = "NOTICE " + cmd.getPrefix() + " :  " + (*j) + " \n";
+							c = command[1][i];
+							if (c < 'a' || c > 'z')
+								continue;
+							symbol = _abc[c].getSymbol();
+							for (std::vector<std::string>::iterator j = symbol.begin(); j != symbol.end(); ++j)
+							{
+								msg = "NOTICE " + cmd.getPrefix() + " :  " + (*j) + " \n";
+								_pendingOutMessages.push(msg);
+							}
+							msg = "NOTICE " + cmd.getPrefix() + " :  " + " " + " \t\n";
 							_pendingOutMessages.push(msg);
 						}
-						msg = "NOTICE " + cmd.getPrefix() + " :  " + " " + " \t\n";
-						_pendingOutMessages.push(msg);
 					}
 				}
 				else if (command[0] == "DIAMOND")
@@ -278,7 +290,7 @@ void Bot::execute(void)
 				}
 				else
 				{
-					msg = "NOTICE " + cmd.getPrefix() + " :shapes: <DIAMOND>\n";
+					msg = "NOTICE " + cmd.getPrefix() + " :Commands: <CALCULATE> <PRINT> <DIAMOND>\n";
 					_pendingOutMessages.push(msg);
 				}
 				pollfds[0].events |= POLLOUT;

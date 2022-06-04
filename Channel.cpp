@@ -72,6 +72,13 @@ void	Channel::sendChannelInfo(const User &user)
 	sendServerReply(user, RPL_LIST, channelName, ss.str(), _topic);
 }
 
+void	Channel::sendBans(const User &user)
+{
+	for (size_t i = 0; i < _banList.size(); i++)
+		sendServerReply(user, RPL_BANLIST, _name, _banList[i]->getNick());
+	sendServerReply(user, RPL_ENDOFBANLIST, _name);
+}
+
 Channel::~Channel() {};
 
 bool Channel::isChannelNameCorrect(const std::string &name) {
@@ -315,7 +322,6 @@ void Channel::inviteToChannel(const User &user, const User &userToInvite) {
 
 const std::vector<const User *> &Channel::getUsers() const { return (this->_usersList); }
 const std::vector<const User *> &Channel::getOperators() const { return (this->_operatorsList); }
-const std::vector<const User *> &Channel::getBans() const { return (this->_banList); }
 std::string	Channel::getPass() const { return (this->_password); }
 int	Channel::getLimit() const { return (this->_limit); }
 

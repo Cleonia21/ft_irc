@@ -198,6 +198,12 @@ int sendServerReply (const User &user, int code,
 		case RPL_UMODEIS:
 			reply += ":" + arg1 + "\n";
 			break;
+		case RPL_BANLIST:
+			reply += arg1 + " " + arg2 + "\n";
+			break;
+		case RPL_ENDOFBANLIST:
+			reply += arg1 + " :End of channel ban list\n";
+			break;
 		default:
 			reply += "UNKNOWN REPLY\n";
 			break;

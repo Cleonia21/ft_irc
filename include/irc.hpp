@@ -1,6 +1,7 @@
 #ifndef IRC_H
 #define IRC_H
 
+#include <signal.h>
 #include <string>
 #include <iostream>
 #include <sstream>

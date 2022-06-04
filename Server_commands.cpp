@@ -327,6 +327,13 @@ int Server::mode(User &user, Input &input)
 		Channel *channel;
 		try { channel = _channels.at(object); }
 		catch (const std::exception &e) { return sendServerReply(user, ERR_NOSUCHCHANNEL, object); }
+
+		if (flags[0] == '+' && flags[1] == 'b' && input.getParams().size() == 2)
+		{
+			channel->sendBans(user);
+			return (0);
+		}
+
 		if (!channel->isOperator(user))
 			return sendServerReply(user, ERR_CHANOPRIVSNEEDED, channel->getName());
 
@@ -361,14 +368,6 @@ int Server::mode(User &user, Input &input)
 				channel->setFlag(flag);
 			if (flag != 0)
 				continue ;
-
-			if ((flags[i] == 'b') && (input.getParams().size() == 2))
-			{
-				std::vector<User *> tmp = channel.getBans();
-				for (size_t i = 0; i < tmp.size(); i++)
-					user.sendMessage(":" + tmp[i].getNick() + " ");
-				continue;
-			}
 
 			if (input.getParams().size() < 3)
 				return sendServerReply(user, ERR_NEEDMOREPARAMS, input.getCommand());
@@ -774,133 +773,3 @@ int Server::ping(User &user, Input &input)
 		user.sendMessage(":" + std::string(ircName) + " PONG :" + input.getParams()[1]);
 	return 0;
 }
-
-
-//Тестовый нерабочий MODE, не удаляйте
-/* 
-	std::string target = input.getParams()[0];
-	std::string flags = input.getParams()[1];
-	if (target[0] == '#' || target[0] == '&') //channel
-	{
-		Channel *channel;
-		try { channel = _channels.at(target); }
-		catch (const std::exception &e) { return sendServerReply(user, ERR_NOSUCHCHANNEL, target); }
-		if (!channel->isOperator(user))
-			return sendServerReply(user, ERR_CHANOPRIVSNEEDED, channel->getName());
-
-		User *tmpUser;
-		unsigned short stateFlag = 0; //для сравнения с флагами канала и определения изменений
-		unsigned short usedFlags = 0; //если 0, то команды не использовались
-		unsigned int count = 0;
-		int negative = 0;
-		std::string flagStr = "+";
-		std::queue<std::string> argsToKeys;
-		//"iosw", "biklmnopstv"
-		for (int i = 0; i < flags.size(); i++)
-		{
-			switch (flags[i])
-			{
-				case '+':
-					if (flagStr[flagStr.size() - 1] == '+' || flagStr[flagStr.size() - 1] == '-')
-						flagStr[flagStr.size() - 1] = '+';
-					else
-						flagStr += "+";
-					negative = 0;
-					break;
-				case '-':
-					if (flagStr[flagStr.size() - 1] == '+' || flagStr[flagStr.size() - 1] == '-')
-						flagStr[flagStr.size() - 1] = '-';
-					else
-						flagStr += "-";
-					negative = 1;
-					break;
-				case 'b':
-					if (usedFlags & CFLAG_BAN)
-						break;
-					if (input.getParams().size() < 3 + count)
-					{
-						sendServerReply(user, ERR_NEEDMOREPARAMS, input.getCommand());
-						break;
-					}
-					tmpUser = this->searchUser(SRCH_NICK, input.getParams()[2 + count]);
-					if (!tmpUser)
-					{
-						sendServerReply(user, ERR_NOSUCHNICK, input.getParams()[2 + count]);
-						break;
-					}
-					// add/remove user from ban list
-					if (negative)
-						channel->removeFromBan(*tmpUser);
-					else
-						channel->addInBan(*tmpUser);
-					usedFlags |= CFLAG_BAN;
-					flagStr += "b";
-					argsToKeys.push(input.getParams()[2 + count]);
-					count++;
-					break;
-				case 'i':
-					if (usedFlags & CFLAG_INVITE)
-						break;
-					if (!negative)
-						stateFlag |= CFLAG_INVITE;
-					usedFlags |= CFLAG_INVITE;
-					break;
-
-				case 'k':
-					if (usedFlags & CFLAG_PASS)
-						break;
-					if (input.getParams().size() < 3 + count)
-					{
-						sendServerReply(user, ERR_NEEDMOREPARAMS, input.getCommand());
-						break;
-					}
-					argsToKeys.push(input.getParams()[2 + count]);
-
-					break;
-				case 'l':
-					if (usedFlags & CFLAG_LIMIT)
-						break;
-
-					break;
-				case 'm':
-					if (usedFlags & CFLAG_MODERATE)
-						break;
-
-					break;
-				case 'n':
-					if (usedFlags & CFLAG_NOMSGOUT)
-						break;
-
-					break;
-				case 'o':
-					if (usedFlags & CFLAG_OPERATOR)
-						break;
-
-					break;
-				case 'p':
-					if (usedFlags & CFLAG_PRIVATE)
-						break;
-
-					break;
-				case 's':
-					if (usedFlags & CFLAG_SECRET)
-						break;
-
-					break;
-				case 't':
-					if (usedFlags & CFLAG_TOPIC)
-						break;
-
-					break;
-				case 'v':
-					if (usedFlags & CFLAG_SPEAKER)
-						break;
-
-					break;
-				default: //Key not found
-					sendServerReply(user, ERR_UNKNOWNMODE, std::string(1, flags[i]));
-					break;
-			}
-		}
-	}
-*/

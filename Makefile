@@ -1,6 +1,6 @@
 NAME = ircserv
 INCLUDE = include/
-CPP = c++ -g #-Wall -Wextra -Werror -std=c++98
+CPP = c++ -g -Wall -Wextra -Werror -std=c++98
 SRCS =		Server.cpp \
 			Server_commands.cpp \
 			User.cpp \
@@ -30,7 +30,7 @@ $(OBJ_DIR):
 		mkdir -p $@
 
 $(OBJ_DIR)/%.o: %.cpp
-		$(CPP) -c $< -o $@ #-I $(INCLUDE) enable later
+		$(CPP) -c $< -o $@ -I $(INCLUDE)
 
 $(NAME): $(OBJ_DIR) $(OBJS)
 		$(CPP) $(OBJS) -o $(NAME)
@@ -45,8 +45,6 @@ leaks: $(NAME)
 #Make bot. Use 'mebot'
 $(BOT_OBJ_DIR):
 		mkdir -p $@
-$(OBJ_DIR)/%.o: %.cpp
-		$(CPP) -c $< -o $@
 $(MEBOT): $(BOT_OBJ_DIR) $(BOT_OBJS)
 		$(CPP) $(BOT_OBJS) -o $(MEBOT)
 ##########################

@@ -35,6 +35,7 @@ class Bot
 		int							socketfd;
 		std::vector<struct pollfd>	pollfds;
 		int							_authenticated;
+		int							_nofile;
 
 		std::vector<Symbol> 		_abc;
 		void getAbc(void);

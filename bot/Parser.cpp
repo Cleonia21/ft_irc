@@ -64,13 +64,3 @@ void Parser::printSubstrings()
         std::cout << "{" + _substrings[i] + "}" << std::endl;
     }
 }
-
-// int main()
-// {
-//     Parser("aa  2a    a 1b   11  211   cc   2c  1", " 12");
-
-//     // std::string str = "123";
-//     // std::cout << str.substr(0, 1) << std::endl;
-//     // std::cout << str.erase(0, 1) << std::endl;
-//     // std::cout << str << std::endl;
-// }
