@@ -315,6 +315,7 @@ void Channel::inviteToChannel(const User &user, const User &userToInvite) {
 
 const std::vector<const User *> &Channel::getUsers() const { return (this->_usersList); }
 const std::vector<const User *> &Channel::getOperators() const { return (this->_operatorsList); }
+const std::vector<const User *> &Channel::getBans() const { return (this->_banList); }
 std::string	Channel::getPass() const { return (this->_password); }
 int	Channel::getLimit() const { return (this->_limit); }
 

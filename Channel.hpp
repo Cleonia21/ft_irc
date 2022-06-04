@@ -73,6 +73,7 @@ class Channel
 		//служебные для вывода
 		const std::vector<const User *> &getUsers() const;
 		const std::vector<const User *> &getOperators() const;
+		const std::vector<const User *> &getBans() const;
 		std::string	getPass() const;
 		int	getLimit() const;
 

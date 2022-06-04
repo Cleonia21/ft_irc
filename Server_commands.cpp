@@ -204,10 +204,10 @@ int Server::part(User &user, Input &input) {
 	return 0;
 }
 
-static bool checkModeFlags(std::string object, std::string _flags)
+static bool checkModeFlags(std::string object, std::string &_flags)
 {
 	if (_flags[0] != '+' && _flags[0] != '-')
-		return false;
+		_flags = "+" + _flags;
 	const char *flags = _flags.c_str() + 1; // пропускаем +-
 	const char *dict;
 	if (_flags.size() == 1)
@@ -361,6 +361,14 @@ int Server::mode(User &user, Input &input)
 				channel->setFlag(flag);
 			if (flag != 0)
 				continue ;
+
+			if ((flags[i] == 'b') && (input.getParams().size() == 2))
+			{
+				std::vector<User *> tmp = channel.getBans();
+				for (size_t i = 0; i < tmp.size(); i++)
+					user.sendMessage(":" + tmp[i].getNick() + " ");
+				continue;
+			}
 
 			if (input.getParams().size() < 3)
 				return sendServerReply(user, ERR_NEEDMOREPARAMS, input.getCommand());

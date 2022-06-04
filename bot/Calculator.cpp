@@ -3,19 +3,12 @@
 Calculator::Calculator(std::string str)
 {
 	std::cout << "log:str {" + str + "}" << std::endl;
-	Parser parser(str, " +-*/");
-	std::vector<std::string> substrings = parser.getSubstrings();
-
-	// std::vector<std::string>::iterator buf;
-	// for (buf = substrings.begin(); buf != substrings.end(); buf++)
-	// {
-	// 	std::cout << *buf << std::endl;
-	// }
+	std::vector<std::string> substrings = Parser(str, " -+*/").getSubstrings();
 
 	if (!validityCheck(substrings))
 		_result = "Error: bad suntax: use double nums and +,-,/,*";
 	else
-	{	
+	{
 		calculation(substrings, "*/");
 		calculation(substrings, "+-");
 		_result = substrings[0];
